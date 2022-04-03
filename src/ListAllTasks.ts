@@ -1,0 +1,219 @@
+import TreeMap from "ts-treemap";
+import { getGoogleAuthToken } from "./GoogleAuth";
+import GoogleTasks from "./GoogleTasksPlugin";
+import { Task, TaskList, TaskListResponse, TaskResponse } from "./types";
+
+export async function getOneTaskById(
+	plugin: GoogleTasks,
+	taskId: string
+): Promise<Task> {
+	const taskLists = await getAllTaskLists(plugin);
+
+	const requestHeaders: HeadersInit = new Headers();
+	requestHeaders.append(
+		"Authorization",
+		"Bearer " + (await getGoogleAuthToken(plugin))
+	);
+	requestHeaders.append("Content-Type", "application/json");
+
+	for (let i = 0; i < taskLists.length; i++) {
+		try {
+			const response = await fetch(
+				`https://tasks.googleapis.com/tasks/v1/lists/${taskLists[i].id}/tasks/${taskId}?key=${plugin.settings.googleApiToken}`,
+				{
+					method: "GET",
+					headers: requestHeaders,
+				}
+			);
+			if (response.status == 200) {
+				const task: Task = await response.json();
+				return task;
+			}
+		} catch (error) {
+			console.error("Couldn't read tasklist from Server");
+		}
+	}
+}
+
+/**
+ * Get all tasklists from account
+ */
+export async function getAllTaskLists(
+	plugin: GoogleTasks
+): Promise<TaskList[]> {
+	const requestHeaders: HeadersInit = new Headers();
+	requestHeaders.append(
+		"Authorization",
+		"Bearer " + (await getGoogleAuthToken(plugin))
+	);
+	requestHeaders.append("Content-Type", "application/json");
+
+	try {
+		const response = await fetch(
+			`https://tasks.googleapis.com/tasks/v1/users/@me/lists?key=${plugin.settings.googleApiToken}`,
+			{
+				method: "GET",
+				headers: requestHeaders,
+				redirect: "follow",
+			}
+		);
+
+		const allTaskListsData: TaskListResponse = await response.json();
+
+		return allTaskListsData.items;
+	} catch (error) {
+		console.error("Couldn't read tasklist from Server");
+		return [];
+	}
+}
+
+/**
+ * Return all tasks from a tasklist
+ */
+export async function getAllTasksFromList(
+	plugin: GoogleTasks,
+	taskListId: string
+): Promise<Task[]> {
+	const requestHeaders: HeadersInit = new Headers();
+	requestHeaders.append(
+		"Authorization",
+		"Bearer " + (await getGoogleAuthToken(plugin))
+	);
+	requestHeaders.append("Content-Type", "application/json");
+	try {
+		let resultTaskList: Task[] = [];
+		let allTasksData: TaskResponse;
+		do {
+			let url = `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?`;
+			url += "maxResults=100";
+			url += "&showCompleted=true";
+			url += "&showDeleted=false";
+			url += "&showHidden=true";
+			url += `&key=${plugin.settings.googleApiToken}`;
+
+			if (allTasksData != undefined) {
+				url += `&pageToken=${allTasksData.nextPageToken}`;
+			}
+
+			const response = await fetch(url, {
+				method: "GET",
+				headers: requestHeaders,
+				redirect: "follow",
+			});
+
+			allTasksData = await response.json();
+			resultTaskList = [...resultTaskList, ...allTasksData.items];
+		} while (allTasksData.nextPageToken);
+
+		return resultTaskList;
+	} catch (error) {
+		console.error("Couldn't read tasklist from Server");
+		console.error(error);
+		return [];
+	}
+}
+
+/**
+ * Get all tasklists from account
+ */
+export async function getAllTasks(plugin: GoogleTasks): Promise<Task[]> {
+	let resultTasks: Task[] = [];
+
+	const taskLists = await getAllTaskLists(plugin);
+
+	for (let i = 0; i < taskLists.length; i++) {
+		const tasks: Task[] = await getAllTasksFromList(
+			plugin,
+			taskLists[i].id
+		);
+
+		tasks.forEach((task) => {
+			task.taskListName = taskLists[i].title;
+		});
+
+		resultTasks = [...resultTasks, ...tasks];
+	}
+	return resultTasks;
+}
+
+/**
+ * Get all not completed and oerdert by due date
+ */
+export async function getAllUncompletedTasksOrderdByDue(
+	plugin: GoogleTasks
+): Promise<Task[]> {
+	let tasks: Task[] = await getAllTasks(plugin);
+
+	tasks = tasks.filter((task) => !task.completed);
+
+	const unTimedTasks = tasks.filter((task) => !task.due);
+	tasks = tasks.filter((task) => task.due);
+
+	tasks = tasks.sort((taskA, taskB) => {
+		return new Date(taskA.due).valueOf() - new Date(taskB.due).valueOf();
+	});
+
+	return [...tasks, ...unTimedTasks];
+}
+
+export const groupBy = function groupByArray(
+	taskList: Task[]
+): TreeMap<string, Task[]> {
+	let resultMap = new TreeMap<string, Task[]>();
+
+	taskList.forEach((task) => {
+		if (resultMap.has(task.due)) {
+			resultMap.get(task.due).push(task);
+		} else {
+			resultMap.set(task.due, [task]);
+		}
+	});
+
+	return resultMap;
+};
+
+/**
+ * Get all nots completed and grouped by due date
+ */
+export async function getAllUncompletedTasksGroupedByDue(
+	plugin: GoogleTasks
+): Promise<TreeMap<string, Task[]>> {
+	let tasks: Task[] = await getAllTasks(plugin);
+
+	tasks = tasks.filter((task) => !task.completed);
+
+	const unTimedTasks = tasks.filter((task) => !task.due);
+	tasks = tasks.filter((task) => task.due);
+
+	tasks = tasks.sort((taskA, taskB) => {
+		return new Date(taskA.due).valueOf() - new Date(taskB.due).valueOf();
+	});
+
+	let resultMap = groupBy(tasks);
+
+	resultMap.set("No due date", unTimedTasks);
+	return resultMap;
+}
+
+/**
+ * Get all nots completed and grouped by due date
+ */
+export async function getAllCompletedTasksGroupedByDue(
+	plugin: GoogleTasks
+): Promise<TreeMap<string, Task[]>> {
+	let tasks: Task[] = await getAllTasks(plugin);
+
+	tasks = tasks.filter((task) => task.completed);
+
+	const unTimedTasks = tasks.filter((task) => !task.due);
+	tasks = tasks.filter((task) => task.due);
+
+	tasks = tasks.sort((taskA, taskB) => {
+		return new Date(taskA.due).valueOf() - new Date(taskB.due).valueOf();
+	});
+
+	let resultMap = groupBy(tasks);
+
+	resultMap.set("No due date", unTimedTasks);
+	return resultMap;
+}

@@ -1,4 +1,67 @@
-/* Sets all the text color to red! */
-body {
-    color: red;
+.googleTaskMainContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding-left: 10px;
+}
+
+.googleTaskMainContainer > hr {
+	width: 100%;
+	padding: 5px;
+	margin: 0;
+}
+
+.googleTaskMainContainer > h4 {
+	font-size: 1.2em;
+	padding: 5px;
+	margin: 0;
+}
+
+.googleTaskMainContainer > h5 {
+	font-size: 1em;
+	padding: 5px;
+	margin: 10px 0px 0px 0px;
+}
+
+.googleTaskMainContainer > h6 {
+	font-size: 0.8em;
+	padding: 5px;
+	margin: 0;
+}
+
+.googleTaskContainer {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 0px 5px;
+}
+
+.googleTaskDoneContainer {
+	display: none;
+}
+
+.googleTaskContainer > input {
+	margin-top: 8px;
+	align-self: flex-start;
+}
+
+.googleTaskTextContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 0px 5px;
+}
+
+.googleTaskTitle {
+	font-size: 1em;
+}
+
+.googleTaskDetails {
+	font-size: 0.5em;
+}
+
+.googleTaskForceShow {
+	display: block;
 }

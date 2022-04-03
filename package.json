@@ -20,5 +20,12 @@
 		"obsidian": "latest",
 		"tslib": "2.3.1",
 		"typescript": "4.4.4"
+	},
+	"dependencies": {
+		"@getstation/electron-google-oauth2": "^2.1.0",
+		"electron-google-oauth": "^2.0.0",
+		"electron-store": "^8.0.1",
+		"moment": "^2.29.1",
+		"ts-treemap": "^1.1.0"
 	}
 }
