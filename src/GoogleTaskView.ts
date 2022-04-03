@@ -189,7 +189,12 @@ export class GoogleTaskView extends ItemView {
 			cls: "googleTaskMainContainer",
 		});
 
-		mainContainer.createEl("h4", { text: "Google Tasks" });
+		mainContainer
+			.createEl("h4", { text: "Google Tasks" })
+			.addEventListener("click", () => {
+				this.updateFromServer();
+			});
+
 		mainContainer.createEl("hr");
 
 		mainContainer
