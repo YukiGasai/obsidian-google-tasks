@@ -1,3 +1,4 @@
+import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasksPlugin from "./GoogleTasksPlugin";
 import { getOneTaskById } from "./ListAllTasks";
@@ -33,7 +34,7 @@ export async function GoogleCompleteTask(
 		);
 		const newTask = await response.json();
 	} catch (error) {
-		console.log("Could not complete task");
+		new Notice("Could not complete task");
 		return false;
 	}
 	return true;
@@ -77,7 +78,7 @@ export async function GoogleUnCompleteTask(
 		);
 		const newTask = await response.json();
 	} catch (error) {
-		console.log("Could not complete task");
+		new Notice("Could not complete task");
 		return false;
 	}
 	return true;

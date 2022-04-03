@@ -1,16 +1,15 @@
 import ElectronGoogleOAuth2 from "@getstation/electron-google-oauth2";
 import GoogleTasks from "./GoogleTasksPlugin";
+import {
+	settingsAreComplete,
+	settingsAreCompleteAndLoggedIn,
+} from "./GoogleTasksSettingTab";
 import { getAT, getET, getRT, setAT, setET, setRT } from "./LocalStorage";
 
 export async function getGoogleAuthToken(plugin: GoogleTasks): Promise<string> {
-	if (getET(plugin) == 0 || getET(plugin) < +new Date()) {
-		const myApiOauth = new ElectronGoogleOAuth2(
-			plugin.settings.googleClientId,
-			plugin.settings.googleClientSecret,
-			["https://www.googleapis.com/auth/tasks"],
-			{ successRedirectURL: "obsidian://obsidian-google-tasks/" }
-		);
+	if (!settingsAreCompleteAndLoggedIn(plugin)) return;
 
+	if (getET(plugin) == 0 || getET(plugin) < +new Date()) {
 		if (getRT() != "") {
 			const refreshBody = {
 				client_id: plugin.settings.googleClientId,
@@ -30,14 +29,25 @@ export async function getGoogleAuthToken(plugin: GoogleTasks): Promise<string> {
 
 			setAT(tokenData.access_token);
 			setET(+new Date() + tokenData.expires_in);
-		} else {
-			await myApiOauth.openAuthWindowAndGetTokens().then((token) => {
-				setAT(token.access_token);
-				setRT(token.refresh_token);
-				setET(token.expiry_date);
-			});
 		}
 	}
 
 	return getAT();
+}
+
+export async function LoginGoogle(plugin: GoogleTasks) {
+	if (!settingsAreComplete(plugin)) return;
+
+	const myApiOauth = new ElectronGoogleOAuth2(
+		plugin.settings.googleClientId,
+		plugin.settings.googleClientSecret,
+		["https://www.googleapis.com/auth/tasks"],
+		{ successRedirectURL: "obsidian://obsidian-google-tasks/" }
+	);
+
+	await myApiOauth.openAuthWindowAndGetTokens().then((token) => {
+		setAT(token.access_token);
+		setRT(token.refresh_token);
+		setET(token.expiry_date);
+	});
 }

@@ -1,4 +1,5 @@
 import { DropdownComponent, Modal, Setting } from "obsidian";
+import { customSetting } from "./CustomSettingElement";
 import GoogleTasks from "./GoogleTasksPlugin";
 import { getAllTaskLists } from "./ListAllTasks";
 import { TaskInput } from "./types";
@@ -50,13 +51,16 @@ export class CreateTaskModal extends Modal {
 				return text;
 			});
 
-			contentEl.createEl("span", { text: "Due date" });
-			const dropDownElement = contentEl.createEl("input", {
+			const dateSelectElement = customSetting(
+				contentEl,
+				"Due date",
+				""
+			).createEl("input", {
 				type: "date",
 			});
 
-			dropDownElement.addEventListener("input", (event) => {
-				this.taskDue = dropDownElement.value;
+			dateSelectElement.addEventListener("input", (event) => {
+				this.taskDue = dateSelectElement.value;
 			});
 
 			new Setting(contentEl).addButton((button) =>

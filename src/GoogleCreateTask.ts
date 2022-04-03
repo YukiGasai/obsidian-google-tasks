@@ -1,8 +1,7 @@
-const moment = require("moment");
-
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "./GoogleTasksPlugin";
+import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
 import { TaskInput } from "./types";
 
 export async function CreateGoogleTask(
@@ -36,8 +35,19 @@ export async function CreateGoogleTask(
 		);
 		if (response.status == 200) {
 			new Notice("New task created");
+
+			const task = await response.json();
+
+			plugin.app.workspace
+				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
+				.forEach((leaf) => {
+					if (leaf.view instanceof GoogleTaskView) {
+						leaf.view.addTodo(task);
+						leaf.view.loadTaskView();
+					}
+				});
 		}
 	} catch (error) {
-		console.error("Couldn't read tasklist from Server");
+		console.error(error);
 	}
 }

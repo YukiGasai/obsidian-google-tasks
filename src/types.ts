@@ -2,6 +2,8 @@ export interface GoogleTasksSettings {
 	googleClientId: string;
 	googleClientSecret: string;
 	googleApiToken: string;
+	askConfirmation: boolean;
+	refreshInterval: number;
 }
 
 export interface TaskList {

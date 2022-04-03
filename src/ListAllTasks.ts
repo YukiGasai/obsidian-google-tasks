@@ -30,7 +30,7 @@ export async function getOneTaskById(
 				return task;
 			}
 		} catch (error) {
-			console.error("Couldn't read tasklist from Server");
+			console.error(error);
 		}
 	}
 }
@@ -62,7 +62,7 @@ export async function getAllTaskLists(
 
 		return allTaskListsData.items;
 	} catch (error) {
-		console.error("Couldn't read tasklist from Server");
+		console.error(error);
 		return [];
 	}
 }
@@ -102,12 +102,13 @@ export async function getAllTasksFromList(
 			});
 
 			allTasksData = await response.json();
-			resultTaskList = [...resultTaskList, ...allTasksData.items];
+			if (allTasksData.items && allTasksData.items.length) {
+				resultTaskList = [...resultTaskList, ...allTasksData.items];
+			}
 		} while (allTasksData.nextPageToken);
 
 		return resultTaskList;
 	} catch (error) {
-		console.error("Couldn't read tasklist from Server");
 		console.error(error);
 		return [];
 	}
@@ -175,10 +176,12 @@ export const groupBy = function groupByArray(
 /**
  * Get all nots completed and grouped by due date
  */
+
 export async function getAllUncompletedTasksGroupedByDue(
-	plugin: GoogleTasks
+	plugin: GoogleTasks,
+	tasks?: Task[]
 ): Promise<TreeMap<string, Task[]>> {
-	let tasks: Task[] = await getAllTasks(plugin);
+	tasks = tasks ?? (await getAllTasks(plugin));
 
 	tasks = tasks.filter((task) => !task.completed);
 
@@ -199,9 +202,10 @@ export async function getAllUncompletedTasksGroupedByDue(
  * Get all nots completed and grouped by due date
  */
 export async function getAllCompletedTasksGroupedByDue(
-	plugin: GoogleTasks
+	plugin: GoogleTasks,
+	tasks?: Task[]
 ): Promise<TreeMap<string, Task[]>> {
-	let tasks: Task[] = await getAllTasks(plugin);
+	tasks = tasks ?? (await getAllTasks(plugin));
 
 	tasks = tasks.filter((task) => task.completed);
 

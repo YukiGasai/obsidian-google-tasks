@@ -6,9 +6,9 @@
 	padding-left: 10px;
 }
 
+.googleTaskConfirmContainer > hr,
 .googleTaskMainContainer > hr {
 	width: 100%;
-	padding: 5px;
 	margin: 0;
 }
 
@@ -24,10 +24,10 @@
 	margin: 10px 0px 0px 0px;
 }
 
-.googleTaskMainContainer > h6 {
+.googleTaskMainContainer > div > h6 {
 	font-size: 0.8em;
 	padding: 5px;
-	margin: 0;
+	margin: 10px 0px 0px 0px;
 }
 
 .googleTaskContainer {
@@ -41,9 +41,14 @@
 	display: none;
 }
 
+.googleTaskTodoContainer {
+	display: none;
+}
+
 .googleTaskContainer > input {
-	margin-top: 8px;
-	align-self: flex-start;
+	min-width: 19px;
+	min-height: 19px;
+	align-self: center;
 }
 
 .googleTaskTextContainer {
@@ -64,4 +69,69 @@
 
 .googleTaskForceShow {
 	display: block;
+}
+
+.googleTaskTrash {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	padding: 0;
+}
+
+.googleTaskTrash:hover > * {
+	color: red;
+}
+
+/*
+	Settings Modal
+*/
+input[type="date"] {
+	padding: 5px 10px;
+	-webkit-appearance: none;
+	transition: box-shadow 0.1s linear;
+	height: var(--input-height);
+	font-family: var(--font-ui);
+	font-size: var(--font-inputs);
+	background: var(--background-modifier-form-field);
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	border-radius: 4px;
+	outline: none;
+}
+::-webkit-calendar-picker-indicator {
+	filter: invert(0.5);
+}
+
+.googleTaskConfirmContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.googleTaskConfirmTitle {
+	width: fit-content !important;
+	padding: 10px !important;
+	margin: 0 !important;
+}
+
+.googleTaskConfirmButtonContainer {
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+	margin-top: 10px;
+}
+
+.googleTaskConfirmAccept {
+	background: rgb(197, 41, 41) !important;
+}
+
+.googleTaskConfirmAccept:hover {
+	background: rgb(193, 79, 79) !important;
+}
+
+.googleTaskOverDue {
+	color: red;
 }

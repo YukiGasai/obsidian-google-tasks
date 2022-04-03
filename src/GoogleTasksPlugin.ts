@@ -1,12 +1,4 @@
-import {
-	App,
-	Editor,
-	MarkdownView,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-	WorkspaceLeaf,
-} from "obsidian";
+import { Editor, MarkdownView, Plugin, WorkspaceLeaf } from "obsidian";
 
 const moment = require("moment");
 import { GoogleTasksSettings, Task, TaskInput } from "./types";
@@ -19,13 +11,17 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { CreateGoogleTask } from "./GoogleCreateTask";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
 import { TaskList } from "./TaskListModal";
-
-// Remember to rename these classes and interfaces!
+import {
+	GoogleTasksSettingTab,
+	settingsAreCompleteAndLoggedIn,
+} from "./GoogleTasksSettingTab";
 
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleClientId: "",
 	googleClientSecret: "",
 	googleApiToken: "",
+	askConfirmation: true,
+	refreshInterval: 60,
 };
 
 export default class GoogleTasks extends Plugin {
@@ -74,6 +70,8 @@ export default class GoogleTasks extends Plugin {
 			)[1] as HTMLElement;
 			const taskId = idElement.textContent;
 
+			if (!settingsAreCompleteAndLoggedIn(this)) return;
+
 			if (checkPointElement.checked) {
 				GoogleCompleteTaskById(this, taskId);
 			} else {
@@ -87,6 +85,8 @@ export default class GoogleTasks extends Plugin {
 			name: "List Google Tasks",
 
 			callback: async () => {
+				if (!settingsAreCompleteAndLoggedIn(this)) return;
+
 				const arr: Task[] = await getAllUncompletedTasksOrderdByDue(
 					this
 				);
@@ -100,6 +100,8 @@ export default class GoogleTasks extends Plugin {
 			name: "Create Google Tasks",
 
 			callback: async () => {
+				if (!settingsAreCompleteAndLoggedIn(this)) return;
+
 				new CreateTaskModal(this, async (taskInput: TaskInput) => {
 					CreateGoogleTask(this, taskInput);
 				}).open();
@@ -111,6 +113,8 @@ export default class GoogleTasks extends Plugin {
 			id: "insert-google-tasks",
 			name: "Insert Google Tasks",
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				if (!settingsAreCompleteAndLoggedIn(this)) return;
+
 				const tasks: Task[] = await getAllUncompletedTasksOrderdByDue(
 					this
 				);
@@ -137,29 +141,8 @@ export default class GoogleTasks extends Plugin {
 			},
 		});
 
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: "open-sample-modal-complex",
-			name: "Open sample modal (complex)",
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			},
-		});
-
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new GoogleTasksSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -176,61 +159,5 @@ export default class GoogleTasks extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: GoogleTasks;
-
-	constructor(app: App, plugin: GoogleTasks) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		containerEl.createEl("h2", { text: "Settings for my awesome plugin." });
-
-		new Setting(containerEl)
-			.setName("ClientId")
-			.setDesc("Google client id")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your client id")
-					.setValue(this.plugin.settings.googleClientId)
-					.onChange(async (value) => {
-						this.plugin.settings.googleClientId = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("ClientSecret")
-			.setDesc("Google client secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your client secret")
-					.setValue(this.plugin.settings.googleClientSecret)
-					.onChange(async (value) => {
-						this.plugin.settings.googleClientSecret = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("ApiToken")
-			.setDesc("Google Api Token")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your api token")
-					.setValue(this.plugin.settings.googleApiToken)
-					.onChange(async (value) => {
-						this.plugin.settings.googleApiToken = value;
-						await this.plugin.saveSettings();
-					})
-			);
 	}
 }
