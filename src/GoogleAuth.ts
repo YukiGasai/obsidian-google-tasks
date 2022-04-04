@@ -1,10 +1,15 @@
-import ElectronGoogleOAuth2 from "@getstation/electron-google-oauth2";
+import { OAuth2Client } from "google-auth-library";
 import GoogleTasks from "./GoogleTasksPlugin";
 import {
 	settingsAreComplete,
 	settingsAreCompleteAndLoggedIn,
 } from "./GoogleTasksSettingTab";
 import { getAT, getET, getRT, setAT, setET, setRT } from "./LocalStorage";
+
+const http = require("http");
+const open = require("open");
+const url = require("url");
+const destroyer = require("server-destroy");
 
 export async function getGoogleAuthToken(plugin: GoogleTasks): Promise<string> {
 	if (!settingsAreCompleteAndLoggedIn(plugin)) return;
@@ -38,16 +43,44 @@ export async function getGoogleAuthToken(plugin: GoogleTasks): Promise<string> {
 export async function LoginGoogle(plugin: GoogleTasks) {
 	if (!settingsAreComplete(plugin)) return;
 
-	const myApiOauth = new ElectronGoogleOAuth2(
+	const oAuth2Client = new OAuth2Client(
 		plugin.settings.googleClientId,
 		plugin.settings.googleClientSecret,
-		["https://www.googleapis.com/auth/tasks"],
-		{ successRedirectURL: "obsidian://obsidian-google-tasks/" }
+		"http://127.0.0.1:42813/callback"
 	);
-
-	await myApiOauth.openAuthWindowAndGetTokens().then((token) => {
-		setAT(token.access_token);
-		setRT(token.refresh_token);
-		setET(token.expiry_date);
+	const authorizeUrl = oAuth2Client.generateAuthUrl({
+		scope: "https://www.googleapis.com/auth/tasks",
+		access_type: "offline",
 	});
+
+	const server = http
+		.createServer(async (req: any, res: any) => {
+			try {
+				if (req.url.indexOf("/callback") > -1) {
+					// acquire the code from the querystring, and close the web server.
+					const qs = new url.URL(req.url, "http://localhost:42813")
+						.searchParams;
+					const code = qs.get("code");
+					console.log(`Code is ${code}`);
+					res.end(
+						"Authentication successful! Please return to obsidian."
+					);
+					server.destroy();
+
+					// Now that we have the code, use that to acquire tokens.
+					const r = await oAuth2Client.getToken(code);
+
+					setRT(r.tokens.refresh_token);
+					setAT(r.tokens.access_token);
+					setET(r.tokens.expiry_date);
+
+					console.info("Tokens acquired.");
+				}
+			} catch (e) {}
+		})
+		.listen(42813, () => {
+			// open the browser to the authorize url to start the workflow
+			open(authorizeUrl, { wait: false }).then((cp: any) => cp.unref());
+		});
+	destroyer(server);
 }

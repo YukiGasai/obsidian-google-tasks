@@ -15,7 +15,6 @@ import {
 	GoogleTasksSettingTab,
 	settingsAreCompleteAndLoggedIn,
 } from "./GoogleTasksSettingTab";
-
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleClientId: "",
 	googleClientSecret: "",
