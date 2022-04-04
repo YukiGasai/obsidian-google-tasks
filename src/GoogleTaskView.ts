@@ -1,14 +1,16 @@
 import {
 	ButtonComponent,
+	DropdownComponent,
 	ItemView,
-	Modal,
 	Setting,
 	WorkspaceLeaf,
 } from "obsidian";
 import TreeMap from "ts-treemap";
 import { ConfirmationModal } from "./ConfirmationModal";
 import {
+	GoogleCompleteTask,
 	GoogleCompleteTaskById,
+	GoogleUnCompleteTask,
 	GoogleUnCompleteTaskById,
 } from "./GoogleCompleteTask";
 import { DeleteGoogleTask } from "./GoogleDeleteTask";
@@ -16,10 +18,11 @@ import GoogleTasks from "./GoogleTasksPlugin";
 import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
 import {
 	getAllCompletedTasksGroupedByDue,
+	getAllTaskLists,
 	getAllTasks,
 	getAllUncompletedTasksGroupedByDue,
 } from "./ListAllTasks";
-import { Task } from "./types";
+import { Task, TaskList } from "./types";
 
 const moment = require("moment");
 
@@ -31,8 +34,13 @@ export class GoogleTaskView extends ItemView {
 	todoTasksGroups: TreeMap<string, Task[]> = new TreeMap();
 	doneTasksGroups: TreeMap<string, Task[]> = new TreeMap();
 
+	taskLists: TaskList[];
+
 	showDone: boolean = false;
 	showTodo: boolean = true;
+
+	currentListId: string = "000";
+	currentListIndex: Number = 0;
 
 	intervalId: number;
 
@@ -63,10 +71,22 @@ export class GoogleTaskView extends ItemView {
 				taskGroup,
 				(a, b) => new Date(b).getTime() - new Date(a).getTime()
 			);
+		} else {
+			taskGroup = TreeMap.fromMap(taskGroup);
 		}
 
 		taskGroup.forEach((tasks: Task[], dueDate: string) => {
 			let dateString = "No due date";
+
+			if (this.currentListId != "000") {
+				tasks = tasks.filter((task) => {
+					return getListId(task) == this.currentListId;
+				});
+
+				if (tasks.length == 0) {
+					return;
+				}
+			}
 
 			if (moment(dueDate).isValid()) {
 				dateString = moment(dueDate).calendar(null, {
@@ -113,9 +133,9 @@ export class GoogleTaskView extends ItemView {
 				}
 				checkBox.addEventListener("click", async (event) => {
 					if (isUnDoneList) {
-						const gotDeleted = await GoogleCompleteTaskById(
+						const gotDeleted = await GoogleCompleteTask(
 							this.plugin,
-							task.id
+							task
 						);
 						if (!gotDeleted) return;
 
@@ -134,9 +154,9 @@ export class GoogleTaskView extends ItemView {
 
 						this.loadTaskView();
 					} else {
-						const gotRestored = await GoogleUnCompleteTaskById(
+						const gotRestored = await GoogleUnCompleteTask(
 							this.plugin,
-							task.id
+							task
 						);
 						if (!gotRestored) return;
 
@@ -189,11 +209,36 @@ export class GoogleTaskView extends ItemView {
 			cls: "googleTaskMainContainer",
 		});
 
-		mainContainer
+		const titleContainer = mainContainer.createDiv({
+			cls: "googleTaskTitleContainer",
+		});
+
+		titleContainer
 			.createEl("h4", { text: "Google Tasks" })
 			.addEventListener("click", () => {
 				this.updateFromServer();
 			});
+
+		const listDropDown = new Setting(titleContainer);
+
+		listDropDown.addDropdown((dropDown) => {
+			let optionList: DropdownComponent[] = [
+				dropDown.addOption("000", "Combined"),
+			];
+
+			this.taskLists.forEach((taskList) => {
+				optionList.push(
+					dropDown.addOption(taskList.id, taskList.title)
+				);
+			});
+			dropDown.onChange((selectedId: string) => {
+				this.currentListId = selectedId;
+
+				this.loadTaskView();
+			});
+
+			dropDown.setValue(this.currentListId);
+		});
 
 		mainContainer.createEl("hr");
 
@@ -291,9 +336,32 @@ export class GoogleTaskView extends ItemView {
 		}
 	}
 
+	public removeTodo(task: Task) {
+		const due = task.due ?? "No due date";
+
+		const ts = this.todoTasksGroups.get(due).find((t) => t.id == task.id);
+
+		this.todoTasksGroups.get(due).remove(ts);
+		if (this.todoTasksGroups.get(due).length == 0) {
+			this.todoTasksGroups.delete(due);
+		}
+		console.log(this.todoTasksGroups);
+	}
+
+	public addDone(task: Task) {
+		const due = task.due ?? "No due date";
+		if (this.doneTasksGroups.has(due)) {
+			this.doneTasksGroups.get(due).push(task);
+		} else {
+			this.doneTasksGroups.set(due, [task]);
+		}
+	}
+
 	async updateFromServer() {
 		console.log(new Date().getTime());
 		if (settingsAreCompleteAndLoggedIn(this.plugin)) {
+			this.taskLists = await getAllTaskLists(this.plugin);
+
 			const unFilteredList = await getAllTasks(this.plugin);
 
 			this.todoTasksGroups = await getAllUncompletedTasksGroupedByDue(
@@ -322,4 +390,14 @@ export class GoogleTaskView extends ItemView {
 	}
 
 	async onClose() {}
+}
+
+function getListId(task: Task): string {
+	let selfLink = task.selfLink;
+
+	const startIndex = "https://www.googleapis.com/tasks/v1/lists/".length;
+
+	const endIndex = selfLink.indexOf("/", startIndex);
+
+	return selfLink.substring(startIndex, endIndex);
 }

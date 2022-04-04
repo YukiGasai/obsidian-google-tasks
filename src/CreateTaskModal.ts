@@ -24,17 +24,33 @@ export class CreateTaskModal extends Modal {
 			const { contentEl } = this;
 
 			contentEl.createEl("h1", { text: "Add a new Taskt" });
-			new Setting(contentEl).setName("Title").addText((text) =>
-				text.onChange((value) => {
-					this.taskTitle = value;
-				})
-			);
+			new Setting(contentEl)
+				.setName("Title")
+				.addText((text) =>
+					text.onChange((value) => {
+						this.taskTitle = value;
+					})
+				)
+				.settingEl.querySelector("input")
+				.focus();
 
 			new Setting(contentEl).setName("Details").addText((text) =>
 				text.onChange((value) => {
 					this.taskDetails = value;
 				})
 			);
+
+			const dateSelectElement = customSetting(
+				contentEl,
+				"Due date",
+				""
+			).createEl("input", {
+				type: "date",
+			});
+
+			dateSelectElement.addEventListener("input", (event) => {
+				this.taskDue = dateSelectElement.value;
+			});
 
 			const dropDown = new Setting(contentEl);
 
@@ -49,18 +65,6 @@ export class CreateTaskModal extends Modal {
 				}
 
 				return text;
-			});
-
-			const dateSelectElement = customSetting(
-				contentEl,
-				"Due date",
-				""
-			).createEl("input", {
-				type: "date",
-			});
-
-			dateSelectElement.addEventListener("input", (event) => {
-				this.taskDue = dateSelectElement.value;
 			});
 
 			new Setting(contentEl).addButton((button) =>

@@ -10,7 +10,7 @@ import {
 import { CreateTaskModal } from "./CreateTaskModal";
 import { CreateGoogleTask } from "./GoogleCreateTask";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { TaskList } from "./TaskListModal";
+import { TaskListModal } from "./TaskListModal";
 import {
 	GoogleTasksSettingTab,
 	settingsAreCompleteAndLoggedIn,
@@ -89,7 +89,7 @@ export default class GoogleTasks extends Plugin {
 				const arr: Task[] = await getAllUncompletedTasksOrderdByDue(
 					this
 				);
-				new TaskList(this, arr).open();
+				new TaskListModal(this, arr).open();
 			},
 		});
 

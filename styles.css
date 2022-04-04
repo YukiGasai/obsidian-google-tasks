@@ -30,6 +30,14 @@
 	margin: 10px 0px 0px 0px;
 }
 
+.googleTaskTitleContainer {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-right: 20px;
+}
+
 .googleTaskContainer {
 	display: flex;
 	align-items: center;

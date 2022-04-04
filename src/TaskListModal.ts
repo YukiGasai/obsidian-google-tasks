@@ -1,9 +1,12 @@
 import { FuzzySuggestModal } from "obsidian";
 import { GoogleCompleteTask } from "./GoogleCompleteTask";
 import GoogleTasks from "./GoogleTasksPlugin";
+import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
 import { Task } from "./types";
 
-export class TaskList extends FuzzySuggestModal<Task> {
+const moment = require("moment");
+
+export class TaskListModal extends FuzzySuggestModal<Task> {
 	plugin: GoogleTasks;
 	taskList: Task[];
 
@@ -19,12 +22,26 @@ export class TaskList extends FuzzySuggestModal<Task> {
 	}
 
 	getItemText(item: Task): string {
-		return (
-			new Date(item.due).valueOf() + "\t" + item.title + "\t" + item.notes
-		);
+		let dateString = "\t\t";
+		if (item.due) {
+			dateString = moment(item.due).format("DD.MM.YYYY");
+		}
+		return `${dateString}` + "\t" + item.title;
 	}
 
 	onChooseItem(item: Task, _: MouseEvent | KeyboardEvent): void {
-		GoogleCompleteTask(this.plugin, item);
+		GoogleCompleteTask(this.plugin, item).then((gotUpdated) => {
+			if (!gotUpdated) return;
+			console.log(gotUpdated);
+			this.app.workspace
+				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
+				.forEach((leaf) => {
+					if (leaf.view instanceof GoogleTaskView) {
+						leaf.view.removeTodo(item);
+						leaf.view.addDone(item);
+						leaf.view.loadTaskView();
+					}
+				});
+		});
 	}
 }
