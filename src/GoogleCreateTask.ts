@@ -2,7 +2,7 @@ import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "./GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { TaskInput } from "./types";
+import { Task, TaskInput } from "./types";
 
 export async function CreateGoogleTask(
 	plugin: GoogleTasks,
@@ -44,6 +44,51 @@ export async function CreateGoogleTask(
 					if (leaf.view instanceof GoogleTaskView) {
 						leaf.view.addTodo(task);
 						leaf.view.loadTaskView();
+					}
+				});
+		}
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function CreateGoogleTaskFromOldTask(
+	plugin: GoogleTasks,
+	newTask: Task
+) {
+	const requestHeaders: HeadersInit = new Headers();
+	requestHeaders.append(
+		"Authorization",
+		"Bearer " + (await getGoogleAuthToken(plugin))
+	);
+	requestHeaders.append("Content-Type", "application/json");
+
+	const listId = newTask.parent;
+	delete newTask.parent;
+
+	if (newTask.due) {
+		newTask.due = new Date(newTask.due).toISOString();
+	}
+
+	try {
+		const response = await fetch(
+			`https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?key=${plugin.settings.googleApiToken}`,
+			{
+				method: "POST",
+				headers: requestHeaders,
+				body: JSON.stringify(newTask),
+			}
+		);
+		if (response.status == 200) {
+			new Notice("Task updated");
+
+			const task = await response.json();
+
+			plugin.app.workspace
+				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
+				.forEach((leaf) => {
+					if (leaf.view instanceof GoogleTaskView) {
+						leaf.view.onOpen();
 					}
 				});
 		}

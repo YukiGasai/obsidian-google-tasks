@@ -5,7 +5,8 @@ import { Task } from "./types";
 
 export async function DeleteGoogleTask(
 	plugin: GoogleTasks,
-	task: Task
+	task: Task,
+	showNotice: boolean = true
 ): Promise<boolean> {
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(
@@ -23,7 +24,7 @@ export async function DeleteGoogleTask(
 			}
 		);
 		if (response.status == 204) {
-			new Notice("Task deleted");
+			if (showNotice) new Notice("Task deleted");
 			return true;
 		} else {
 			return false;

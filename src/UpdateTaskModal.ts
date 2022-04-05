@@ -1,44 +1,52 @@
+const moment = require("moment");
 import { DropdownComponent, Modal, Setting } from "obsidian";
 import { customSetting } from "./CustomSettingElement";
 import GoogleTasks from "./GoogleTasksPlugin";
+import { getListId } from "./GoogleTaskView";
 import { getAllTaskLists } from "./ListAllTasks";
-import { TaskInput } from "./types";
+import { Task, TaskInput } from "./types";
 
-export class CreateTaskModal extends Modal {
+export class UpdateTaskModal extends Modal {
 	plugin: GoogleTasks;
-	taskTitle: string;
-	taskDetails: string;
-	taskList: string;
-	taskDue: string;
+	oldTask: Task;
+	newTask: Task;
 
-	onSubmit: (taskInput: TaskInput) => void;
-	constructor(plugin: GoogleTasks, onSubmit: (taskInput: TaskInput) => void) {
+	onSubmit: (newTask: Task) => void;
+	constructor(
+		plugin: GoogleTasks,
+		onSubmit: (newTask: Task) => void,
+		task: Task
+	) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.onSubmit = onSubmit;
+		this.oldTask = task;
 	}
 	onOpen() {
 		getAllTaskLists(this.plugin).then((taskList) => {
-			this.taskList = taskList[0].id;
-
 			const { contentEl } = this;
 
-			contentEl.createEl("h1", { text: "Add a new Task" });
+			this.newTask = this.oldTask;
+
+			contentEl.createEl("h1", { text: "Edit Task" });
+
 			new Setting(contentEl)
 				.setName("Title")
-				.addText((text) =>
-					text.onChange((value) => {
-						this.taskTitle = value;
-					})
-				)
-				.settingEl.querySelector("input")
-				.focus();
 
-			new Setting(contentEl).setName("Details").addText((text) =>
+				.addText((text) => {
+					text.onChange((value) => {
+						this.newTask.title = value;
+					});
+					text.setValue(this.oldTask.title);
+					text.inputEl.focus();
+				});
+
+			new Setting(contentEl).setName("Details").addText((text) => {
 				text.onChange((value) => {
-					this.taskDetails = value;
-				})
-			);
+					this.newTask.notes = value;
+				});
+				text.setValue(this.oldTask.notes);
+			});
 
 			const dateSelectElement = customSetting(
 				contentEl,
@@ -49,34 +57,37 @@ export class CreateTaskModal extends Modal {
 			});
 
 			dateSelectElement.addEventListener("input", (event) => {
-				this.taskDue = dateSelectElement.value;
+				this.newTask.due = dateSelectElement.value;
 			});
+
+			if (this.oldTask.due) {
+				dateSelectElement.value = moment(this.oldTask.due).format(
+					"YYYY-MM-DD"
+				);
+			}
 
 			const dropDown = new Setting(contentEl);
 
 			dropDown.setName("Categorie");
 			dropDown.addDropdown((text: DropdownComponent) => {
 				text.onChange((value) => {
-					this.taskList = value;
+					this.newTask.parent = value;
 				});
 
 				for (let i = 0; i < taskList.length; i++) {
 					text.addOption(taskList[i].id, taskList[i].title);
 				}
 
+				text.setValue(getListId(this.oldTask));
+
 				return text;
 			});
 
 			new Setting(contentEl).addButton((button) =>
-				button.setButtonText("Create").onClick(() => {
+				button.setButtonText("Update").onClick(() => {
 					this.close();
-					const taskInput: TaskInput = {
-						title: this.taskTitle,
-						details: this.taskDetails,
-						due: this.taskDue,
-						taskListId: this.taskList,
-					};
-					this.onSubmit(taskInput);
+
+					this.onSubmit(this.newTask);
 				})
 			);
 		});

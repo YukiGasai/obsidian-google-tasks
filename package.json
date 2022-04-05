@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"google-auth-library": "^7.14.1",
+		"long-press-event": "^2.4.4",
 		"moment": "^2.29.1",
 		"open": "^8.4.0",
 		"server-destroy": "^1.0.1",

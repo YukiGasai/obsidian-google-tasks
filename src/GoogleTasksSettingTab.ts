@@ -93,8 +93,9 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 			.setDesc("Ask for confirmations when deleting a task")
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.askConfirmation);
-				toggle.onChange((state) => {
+				toggle.onChange(async (state) => {
 					this.plugin.settings.askConfirmation = state;
+					await this.plugin.saveSettings();
 				});
 			});
 
@@ -108,7 +109,7 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 		RefreshIntervalInput.value = this.plugin.settings.refreshInterval + "";
 		RefreshIntervalInput.min = "10";
 		RefreshIntervalInput.step = "1";
-		RefreshIntervalInput.addEventListener("input", () => {
+		RefreshIntervalInput.addEventListener("input", async () => {
 			this.plugin.settings.refreshInterval = parseInt(
 				RefreshIntervalInput.value
 			);
@@ -119,6 +120,7 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 						leaf.view.setRefreshInterval();
 					}
 				});
+			await this.plugin.saveSettings();
 		});
 	}
 }

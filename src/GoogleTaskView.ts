@@ -7,12 +7,17 @@ import {
 } from "obsidian";
 import TreeMap from "ts-treemap";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { CreateTaskModal } from "./CreateTaskModal";
 import {
 	GoogleCompleteTask,
 	GoogleCompleteTaskById,
 	GoogleUnCompleteTask,
 	GoogleUnCompleteTaskById,
 } from "./GoogleCompleteTask";
+import {
+	CreateGoogleTask,
+	CreateGoogleTaskFromOldTask,
+} from "./GoogleCreateTask";
 import { DeleteGoogleTask } from "./GoogleDeleteTask";
 import GoogleTasks from "./GoogleTasksPlugin";
 import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
@@ -23,6 +28,7 @@ import {
 	getAllUncompletedTasksGroupedByDue,
 } from "./ListAllTasks";
 import { Task, TaskList } from "./types";
+import { UpdateTaskModal } from "./UpdateTaskModal";
 
 const moment = require("moment");
 
@@ -108,6 +114,37 @@ export class GoogleTaskView extends ItemView {
 
 				const taskContainer = mainContainer.createDiv({
 					cls: "googleTaskContainer",
+				});
+
+				let timer = 0;
+				let startTime = 0;
+				let endTime = 0;
+				let longpress = false;
+
+				taskContainer.addEventListener("mousedown", () => {
+					startTime = new Date().getTime();
+				});
+
+				taskContainer.addEventListener("mouseup", () => {
+					endTime = new Date().getTime();
+					longpress = endTime - startTime < 500 ? false : true;
+				});
+
+				taskContainer.addEventListener("click", () => {
+					if (longpress) {
+						longpress = false;
+						new UpdateTaskModal(
+							this.plugin,
+							(newTask: Task) => {
+								CreateGoogleTaskFromOldTask(
+									this.plugin,
+									newTask
+								);
+								DeleteGoogleTask(this.plugin, task, false);
+							},
+							task
+						).open();
+					}
 				});
 
 				if (!isUnDoneList) {
@@ -392,7 +429,7 @@ export class GoogleTaskView extends ItemView {
 	async onClose() {}
 }
 
-function getListId(task: Task): string {
+export function getListId(task: Task): string {
 	let selfLink = task.selfLink;
 
 	const startIndex = "https://www.googleapis.com/tasks/v1/lists/".length;
