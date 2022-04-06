@@ -1,10 +1,10 @@
 const moment = require("moment");
 import { DropdownComponent, Modal, Setting } from "obsidian";
-import { customSetting } from "./CustomSettingElement";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { getListId } from "./GoogleTaskView";
-import { getAllTaskLists } from "./ListAllTasks";
-import { Task, TaskInput } from "./types";
+import { customSetting } from "../helper/CustomSettingElement";
+import GoogleTasks from "../GoogleTasksPlugin";
+import { getListId } from "../view/GoogleTaskView";
+import { getAllTaskLists } from "../googleApi/ListAllTasks";
+import { Task, TaskInput } from "../helper/types";
 
 export class UpdateTaskModal extends Modal {
 	plugin: GoogleTasks;

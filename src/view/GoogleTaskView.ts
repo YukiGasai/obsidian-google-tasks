@@ -6,29 +6,29 @@ import {
 	WorkspaceLeaf,
 } from "obsidian";
 import TreeMap from "ts-treemap";
-import { ConfirmationModal } from "./ConfirmationModal";
-import { CreateTaskModal } from "./CreateTaskModal";
+import { ConfirmationModal } from "../modal/ConfirmationModal";
+import { CreateTaskModal } from "../modal/CreateTaskModal";
 import {
 	GoogleCompleteTask,
 	GoogleCompleteTaskById,
 	GoogleUnCompleteTask,
 	GoogleUnCompleteTaskById,
-} from "./GoogleCompleteTask";
+} from "../googleApi/GoogleCompleteTask";
 import {
 	CreateGoogleTask,
 	CreateGoogleTaskFromOldTask,
-} from "./GoogleCreateTask";
-import { DeleteGoogleTask } from "./GoogleDeleteTask";
-import GoogleTasks from "./GoogleTasksPlugin";
+} from "../googleApi/GoogleCreateTask";
+import { DeleteGoogleTask } from "../googleApi/GoogleDeleteTask";
+import GoogleTasks from "../GoogleTasksPlugin";
 import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
 import {
 	getAllCompletedTasksGroupedByDue,
 	getAllTaskLists,
 	getAllTasks,
 	getAllUncompletedTasksGroupedByDue,
-} from "./ListAllTasks";
-import { Task, TaskList } from "./types";
-import { UpdateTaskModal } from "./UpdateTaskModal";
+} from "../googleApi/ListAllTasks";
+import { Task, TaskList } from "../helper/types";
+import { UpdateTaskModal } from "../modal/UpdateTaskModal";
 
 const moment = require("moment");
 
@@ -248,6 +248,14 @@ export class GoogleTaskView extends ItemView {
 
 		const titleContainer = mainContainer.createDiv({
 			cls: "googleTaskTitleContainer",
+		});
+
+		new Setting(titleContainer).addButton((button) => {
+			button.setIcon("plus");
+			button.setClass("googleTaskAddButton");
+			button.onClick((event) => {
+				new CreateTaskModal(this.plugin).open();
+			});
 		});
 
 		titleContainer

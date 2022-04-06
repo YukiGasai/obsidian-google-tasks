@@ -1,8 +1,8 @@
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasksPlugin from "./GoogleTasksPlugin";
+import GoogleTasksPlugin from "../GoogleTasksPlugin";
 import { getOneTaskById } from "./ListAllTasks";
-import { Task } from "./types";
+import { Task } from "../helper/types";
 
 //=======================================
 //Complete the tasks

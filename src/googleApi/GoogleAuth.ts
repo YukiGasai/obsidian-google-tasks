@@ -1,10 +1,17 @@
 import { OAuth2Client } from "google-auth-library";
-import GoogleTasks from "./GoogleTasksPlugin";
+import GoogleTasks from "../GoogleTasksPlugin";
 import {
 	settingsAreComplete,
 	settingsAreCompleteAndLoggedIn,
-} from "./GoogleTasksSettingTab";
-import { getAT, getET, getRT, setAT, setET, setRT } from "./LocalStorage";
+} from "../view/GoogleTasksSettingTab";
+import {
+	getAT,
+	getET,
+	getRT,
+	setAT,
+	setET,
+	setRT,
+} from "../helper/LocalStorage";
 
 const http = require("http");
 const open = require("open");

@@ -1,7 +1,7 @@
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { Task } from "./types";
+import GoogleTasks from "../GoogleTasksPlugin";
+import { Task } from "../helper/types";
 
 export async function DeleteGoogleTask(
 	plugin: GoogleTasks,

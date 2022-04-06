@@ -1,8 +1,9 @@
 import { DropdownComponent, Modal, Setting } from "obsidian";
-import { customSetting } from "./CustomSettingElement";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { getAllTaskLists } from "./ListAllTasks";
-import { TaskInput } from "./types";
+import { customSetting } from "../helper/CustomSettingElement";
+import { CreateGoogleTask } from "../googleApi/GoogleCreateTask";
+import GoogleTasks from "../GoogleTasksPlugin";
+import { getAllTaskLists } from "../googleApi/ListAllTasks";
+import { TaskInput } from "../helper/types";
 
 export class CreateTaskModal extends Modal {
 	plugin: GoogleTasks;
@@ -12,10 +13,9 @@ export class CreateTaskModal extends Modal {
 	taskDue: string;
 
 	onSubmit: (taskInput: TaskInput) => void;
-	constructor(plugin: GoogleTasks, onSubmit: (taskInput: TaskInput) => void) {
+	constructor(plugin: GoogleTasks) {
 		super(plugin.app);
 		this.plugin = plugin;
-		this.onSubmit = onSubmit;
 	}
 	onOpen() {
 		getAllTaskLists(this.plugin).then((taskList) => {
@@ -76,7 +76,7 @@ export class CreateTaskModal extends Modal {
 						due: this.taskDue,
 						taskListId: this.taskList,
 					};
-					this.onSubmit(taskInput);
+					CreateGoogleTask(this.plugin, taskInput);
 				})
 			);
 		});

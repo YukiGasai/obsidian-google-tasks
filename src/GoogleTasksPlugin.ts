@@ -1,20 +1,19 @@
 import { Editor, MarkdownView, Plugin, WorkspaceLeaf } from "obsidian";
 
 const moment = require("moment");
-import { GoogleTasksSettings, Task, TaskInput } from "./types";
-import { getAllUncompletedTasksOrderdByDue } from "./ListAllTasks";
+import { GoogleTasksSettings, Task, TaskInput } from "./helper/types";
+import { getAllUncompletedTasksOrderdByDue } from "./googleApi/ListAllTasks";
 import {
 	GoogleCompleteTaskById,
 	GoogleUnCompleteTaskById,
-} from "./GoogleCompleteTask";
-import { CreateTaskModal } from "./CreateTaskModal";
-import { CreateGoogleTask } from "./GoogleCreateTask";
-import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { TaskListModal } from "./TaskListModal";
+} from "./googleApi/GoogleCompleteTask";
+import { CreateTaskModal } from "./modal/CreateTaskModal";
+import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./view/GoogleTaskView";
+import { TaskListModal } from "./modal/TaskListModal";
 import {
 	GoogleTasksSettingTab,
 	settingsAreCompleteAndLoggedIn,
-} from "./GoogleTasksSettingTab";
+} from "./view/GoogleTasksSettingTab";
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleClientId: "",
 	googleClientSecret: "",
@@ -101,9 +100,7 @@ export default class GoogleTasks extends Plugin {
 			callback: async () => {
 				if (!settingsAreCompleteAndLoggedIn(this)) return;
 
-				new CreateTaskModal(this, async (taskInput: TaskInput) => {
-					CreateGoogleTask(this, taskInput);
-				}).open();
+				new CreateTaskModal(this).open();
 			},
 		});
 
@@ -123,7 +120,7 @@ export default class GoogleTasks extends Plugin {
 					if (task.due) {
 						date = moment(task.due).format("DD.MM.YYYY");
 					} else {
-						date = "          ";
+						date = "-----------";
 					}
 
 					editor.replaceRange(

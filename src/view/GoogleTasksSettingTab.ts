@@ -5,11 +5,11 @@ import {
 	Notice,
 	ButtonComponent,
 } from "obsidian";
-import { customSetting } from "./CustomSettingElement";
-import { LoginGoogle } from "./GoogleAuth";
-import GoogleTasks from "./GoogleTasksPlugin";
+import { customSetting } from "../helper/CustomSettingElement";
+import { LoginGoogle } from "../googleApi/GoogleAuth";
+import GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { getRT, setAT, setET, setRT } from "./LocalStorage";
+import { getRT, setAT, setET, setRT } from "../helper/LocalStorage";
 
 export class GoogleTasksSettingTab extends PluginSettingTab {
 	plugin: GoogleTasks;

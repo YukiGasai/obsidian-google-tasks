@@ -1,4 +1,4 @@
-import GoogleTasksPlugin from "./GoogleTasksPlugin";
+import GoogleTasksPlugin from "../GoogleTasksPlugin";
 
 //===================
 //GETTER

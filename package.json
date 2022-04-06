@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-sample-plugin",
-	"version": "1.0.1",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"version": "1.0.2",
+	"description": "This is a plugin for Obsidian to interact with your google tasks",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

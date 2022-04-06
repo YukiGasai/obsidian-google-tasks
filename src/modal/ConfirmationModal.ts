@@ -1,5 +1,5 @@
 import { ButtonComponent, Modal } from "obsidian";
-import GoogleTasks from "./GoogleTasksPlugin";
+import GoogleTasks from "../GoogleTasksPlugin";
 
 export class ConfirmationModal extends Modal {
 	plugin: GoogleTasks;
@@ -26,20 +26,22 @@ export class ConfirmationModal extends Modal {
 			cls: "googleTaskConfirmButtonContainer",
 		});
 
-		const CancelButton = new ButtonComponent(buttonContainer);
-		CancelButton.setClass("googleTaskConfirmCancel");
-		CancelButton.setButtonText("Cancel");
-		CancelButton.onClick(() => {
-			this.close();
-		});
+		//Negative response
+		new ButtonComponent(buttonContainer)
+			.setClass("googleTaskConfirmCancel")
+			.setButtonText("Cancel")
+			.onClick(() => {
+				this.close();
+			});
 
-		const AcceptButton = new ButtonComponent(buttonContainer);
-		AcceptButton.setClass("googleTaskConfirmAccept");
-		AcceptButton.setButtonText("Confirm");
-		AcceptButton.onClick(() => {
-			this.onSubmit();
-			this.close();
-		});
+		//Positiv response
+		new ButtonComponent(buttonContainer)
+			.setClass("googleTaskConfirmAccept")
+			.setButtonText("Confirm")
+			.onClick(() => {
+				this.onSubmit();
+				this.close();
+			});
 	}
 	onClose() {
 		let { contentEl } = this;

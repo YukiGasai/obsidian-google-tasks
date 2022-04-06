@@ -1,7 +1,12 @@
 import TreeMap from "ts-treemap";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { Task, TaskList, TaskListResponse, TaskResponse } from "./types";
+import GoogleTasks from "../GoogleTasksPlugin";
+import {
+	Task,
+	TaskList,
+	TaskListResponse,
+	TaskResponse,
+} from "../helper/types";
 
 export async function getOneTaskById(
 	plugin: GoogleTasks,

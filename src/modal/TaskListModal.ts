@@ -1,8 +1,8 @@
 import { FuzzySuggestModal } from "obsidian";
-import { GoogleCompleteTask } from "./GoogleCompleteTask";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { Task } from "./types";
+import { GoogleCompleteTask } from "../googleApi/GoogleCompleteTask";
+import GoogleTasks from "../GoogleTasksPlugin";
+import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
+import { Task } from "../helper/types";
 
 const moment = require("moment");
 

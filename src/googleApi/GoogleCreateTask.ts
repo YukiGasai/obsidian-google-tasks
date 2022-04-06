@@ -1,8 +1,8 @@
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "./GoogleTasksPlugin";
-import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
-import { Task, TaskInput } from "./types";
+import GoogleTasks from "../GoogleTasksPlugin";
+import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
+import { Task, TaskInput } from "../helper/types";
 
 export async function CreateGoogleTask(
 	plugin: GoogleTasks,

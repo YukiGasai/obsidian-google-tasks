@@ -6,6 +6,16 @@
 	padding-left: 10px;
 }
 
+.googleTaskAddButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	height: 30px;
+	width: 30px;
+	padding: 0 !important;
+}
+
 .googleTaskConfirmContainer > hr,
 .googleTaskMainContainer > hr {
 	width: 100%;
