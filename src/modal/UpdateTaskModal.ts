@@ -4,29 +4,24 @@ import { customSetting } from "../helper/CustomSettingElement";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { getListId } from "../view/GoogleTaskView";
 import { getAllTaskLists } from "../googleApi/ListAllTasks";
-import { Task, TaskInput } from "../helper/types";
+import { Task } from "../helper/types";
+import { CreateGoogleTaskFromOldTask } from "src/googleApi/GoogleCreateTask";
+import { DeleteGoogleTask } from "src/googleApi/GoogleDeleteTask";
 
 export class UpdateTaskModal extends Modal {
 	plugin: GoogleTasks;
-	oldTask: Task;
 	newTask: Task;
+	oldTaskSelfLInk: string;
 
-	onSubmit: (newTask: Task) => void;
-	constructor(
-		plugin: GoogleTasks,
-		onSubmit: (newTask: Task) => void,
-		task: Task
-	) {
+	constructor(plugin: GoogleTasks, task: Task) {
 		super(plugin.app);
 		this.plugin = plugin;
-		this.onSubmit = onSubmit;
-		this.oldTask = task;
+		this.newTask = task;
+		this.oldTaskSelfLInk = task.selfLink;
 	}
 	onOpen() {
 		getAllTaskLists(this.plugin).then((taskList) => {
 			const { contentEl } = this;
-
-			this.newTask = this.oldTask;
 
 			contentEl.createEl("h1", { text: "Edit Task" });
 
@@ -37,7 +32,7 @@ export class UpdateTaskModal extends Modal {
 					text.onChange((value) => {
 						this.newTask.title = value;
 					});
-					text.setValue(this.oldTask.title);
+					text.setValue(this.newTask.title);
 					text.inputEl.focus();
 				});
 
@@ -45,7 +40,7 @@ export class UpdateTaskModal extends Modal {
 				text.onChange((value) => {
 					this.newTask.notes = value;
 				});
-				text.setValue(this.oldTask.notes);
+				text.setValue(this.newTask.notes);
 			});
 
 			const dateSelectElement = customSetting(
@@ -60,8 +55,8 @@ export class UpdateTaskModal extends Modal {
 				this.newTask.due = dateSelectElement.value;
 			});
 
-			if (this.oldTask.due) {
-				dateSelectElement.value = moment(this.oldTask.due).format(
+			if (this.newTask.due) {
+				dateSelectElement.value = moment(this.newTask.due).format(
 					"YYYY-MM-DD"
 				);
 			}
@@ -78,16 +73,17 @@ export class UpdateTaskModal extends Modal {
 					text.addOption(taskList[i].id, taskList[i].title);
 				}
 
-				text.setValue(getListId(this.oldTask));
+				text.setValue(getListId(this.newTask));
+				this.newTask.parent = getListId(this.newTask);
 
 				return text;
 			});
 
 			new Setting(contentEl).addButton((button) =>
 				button.setButtonText("Update").onClick(() => {
+					CreateGoogleTaskFromOldTask(this.plugin, this.newTask);
+					DeleteGoogleTask(this.plugin, this.oldTaskSelfLInk, false);
 					this.close();
-
-					this.onSubmit(this.newTask);
 				})
 			);
 		});

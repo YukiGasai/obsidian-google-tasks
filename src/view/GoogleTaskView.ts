@@ -10,14 +10,9 @@ import { ConfirmationModal } from "../modal/ConfirmationModal";
 import { CreateTaskModal } from "../modal/CreateTaskModal";
 import {
 	GoogleCompleteTask,
-	GoogleCompleteTaskById,
 	GoogleUnCompleteTask,
-	GoogleUnCompleteTaskById,
 } from "../googleApi/GoogleCompleteTask";
-import {
-	CreateGoogleTask,
-	CreateGoogleTaskFromOldTask,
-} from "../googleApi/GoogleCreateTask";
+
 import { DeleteGoogleTask } from "../googleApi/GoogleDeleteTask";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
@@ -133,17 +128,7 @@ export class GoogleTaskView extends ItemView {
 				taskContainer.addEventListener("click", () => {
 					if (longpress) {
 						longpress = false;
-						new UpdateTaskModal(
-							this.plugin,
-							(newTask: Task) => {
-								CreateGoogleTaskFromOldTask(
-									this.plugin,
-									newTask
-								);
-								DeleteGoogleTask(this.plugin, task, false);
-							},
-							task
-						).open();
+						new UpdateTaskModal(this.plugin, task).open();
 					}
 				});
 
@@ -343,7 +328,10 @@ export class GoogleTaskView extends ItemView {
 
 	async deleteTask(task: Task) {
 		const due = task.due ?? "No due date";
-		const gotDeleted: boolean = await DeleteGoogleTask(this.plugin, task);
+		const gotDeleted: boolean = await DeleteGoogleTask(
+			this.plugin,
+			task.selfLink
+		);
 
 		if (gotDeleted) {
 			this.doneTasksGroups.get(due).remove(task);

@@ -1,11 +1,10 @@
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
-import { Task } from "../helper/types";
 
 export async function DeleteGoogleTask(
 	plugin: GoogleTasks,
-	task: Task,
+	selfLink: string,
 	showNotice: boolean = true
 ): Promise<boolean> {
 	const requestHeaders: HeadersInit = new Headers();
@@ -17,7 +16,7 @@ export async function DeleteGoogleTask(
 
 	try {
 		const response = await fetch(
-			`${task.selfLink}?key=${plugin.settings.googleApiToken}`,
+			`${selfLink}?key=${plugin.settings.googleApiToken}`,
 			{
 				method: "DELETE",
 				headers: requestHeaders,
