@@ -32,7 +32,7 @@ export class TaskListModal extends FuzzySuggestModal<Task> {
 	onChooseItem(item: Task, _: MouseEvent | KeyboardEvent): void {
 		GoogleCompleteTask(this.plugin, item).then((gotUpdated) => {
 			if (!gotUpdated) return;
-			console.log(gotUpdated);
+
 			this.app.workspace
 				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
 				.forEach((leaf) => {

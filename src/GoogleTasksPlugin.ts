@@ -24,7 +24,6 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 
 export default class GoogleTasks extends Plugin {
 	settings: GoogleTasksSettings;
-	store: any;
 
 	initView = async () => {
 		if (
@@ -81,14 +80,14 @@ export default class GoogleTasks extends Plugin {
 		this.addCommand({
 			id: "list-google-tasks",
 			name: "List Google Tasks",
+			checkCallback: (checking: boolean) => {
+				if (checking) {
+					return settingsAreCompleteAndLoggedIn(this);
+				}
 
-			callback: async () => {
-				if (!settingsAreCompleteAndLoggedIn(this)) return;
-
-				const arr: Task[] = await getAllUncompletedTasksOrderdByDue(
-					this
+				getAllUncompletedTasksOrderdByDue(this).then((list) =>
+					new TaskListModal(this, list).open()
 				);
-				new TaskListModal(this, arr).open();
 			},
 		});
 
@@ -97,8 +96,10 @@ export default class GoogleTasks extends Plugin {
 			id: "create-google-task",
 			name: "Create Google Tasks",
 
-			callback: async () => {
-				if (!settingsAreCompleteAndLoggedIn(this)) return;
+			checkCallback: (checking: boolean) => {
+				if (checking) {
+					return settingsAreCompleteAndLoggedIn(this);
+				}
 
 				new CreateTaskModal(this).open();
 			},
@@ -108,31 +109,35 @@ export default class GoogleTasks extends Plugin {
 		this.addCommand({
 			id: "insert-google-tasks",
 			name: "Insert Google Tasks",
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
-				if (!settingsAreCompleteAndLoggedIn(this)) return;
+			editorCheckCallback: (
+				checking: boolean,
+				editor: Editor,
+				view: MarkdownView
+			): boolean => {
+				if (checking) {
+					return settingsAreCompleteAndLoggedIn(this);
+				}
 
-				const tasks: Task[] = await getAllUncompletedTasksOrderdByDue(
-					this
-				);
+				getAllUncompletedTasksOrderdByDue(this).then((tasks) => {
+					tasks.forEach((task) => {
+						let date = "";
+						if (task.due) {
+							date = moment(task.due).format("DD.MM.YYYY");
+						} else {
+							date = "-----------";
+						}
 
-				tasks.forEach((task) => {
-					let date = "";
-					if (task.due) {
-						date = moment(task.due).format("DD.MM.YYYY");
-					} else {
-						date = "-----------";
-					}
-
-					editor.replaceRange(
-						"- [ ] " +
-							date +
-							"  " +
-							task.title +
-							"  %%" +
-							task.id +
-							"%%\n",
-						editor.getCursor()
-					);
+						editor.replaceRange(
+							"- [ ] " +
+								date +
+								"  " +
+								task.title +
+								"  %%" +
+								task.id +
+								"%%\n",
+							editor.getCursor()
+						);
+					});
 				});
 			},
 		});

@@ -68,7 +68,6 @@ export async function LoginGoogle(plugin: GoogleTasks) {
 					const qs = new url.URL(req.url, "http://localhost:42813")
 						.searchParams;
 					const code = qs.get("code");
-					console.log(`Code is ${code}`);
 					res.end(
 						"Authentication successful! Please return to obsidian."
 					);

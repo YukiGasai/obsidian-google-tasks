@@ -390,7 +390,6 @@ export class GoogleTaskView extends ItemView {
 		if (this.todoTasksGroups.get(due).length == 0) {
 			this.todoTasksGroups.delete(due);
 		}
-		console.log(this.todoTasksGroups);
 	}
 
 	public addDone(task: Task) {
@@ -403,7 +402,6 @@ export class GoogleTaskView extends ItemView {
 	}
 
 	async updateFromServer() {
-		console.log(new Date().getTime());
 		if (settingsAreCompleteAndLoggedIn(this.plugin)) {
 			this.taskLists = await getAllTaskLists(this.plugin);
 

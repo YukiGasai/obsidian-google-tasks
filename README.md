@@ -31,3 +31,31 @@ Manage your Google Tasks from inside Obsidian
     -   add `http://127.0.0.1:42813/callback/` and `http://127.0.0.1:42813/callback/` as redirect URI
 -   add the keys into the fields unter the plugin settings
 -   Press Login
+
+## Usage
+
+### Google Task View
+
+-   Open view by pressing the checkmark icon in the left sidebar
+-   View will open and list your tasks
+    -   Complete them by clicking the checkbox
+    -   Edit them by long clicking the task
+    -   Show and hide the todo and done list by pressing the title texts
+    -   Force update the list by pressing on Google Tasks
+    -   The list will check for changes in a set intervall (changeable in settings)
+    -   Press the plus button to create a new task
+    -   Use the dropdown to switch between lists
+
+### Commands
+
+#### List Google Tasks
+
+Shows a list of all un done tasks selcting one will complete the task
+
+#### Create Google Tasks
+
+Will open a popup to create a new task
+
+#### Insert Google Tasks
+
+Will insert a lost of all un done tasks into the current file. Checking the task inside the File will complete / uncomplete it.
