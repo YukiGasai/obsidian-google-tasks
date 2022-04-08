@@ -14,7 +14,7 @@ Manage your Google Tasks from inside Obsidian
 
 ## Installation
 
--   Download obsidian-goole-tasks from the latest [release](https://github.com/YukiGasai/obsidian-goole-tasks/releases/)
+-   Download obsidian-google-tasks from the latest [release](https://github.com/YukiGasai/obsidian-google-tasks/releases/)
 -   Extract zip into `.obsidian/plugins` folder
 -   Restart Obsidian
 -   Activate inside the obsidian settings page
