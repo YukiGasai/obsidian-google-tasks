@@ -28,7 +28,7 @@ Manage your Google Tasks from inside Obsidian
 -   [Add OAUTH client](https://console.cloud.google.com/apis/credentials/oauthclient)
     -   select Webclient
     -   add `http://127.0.0.1:42813` as Javascript origin
-    -   add `http://127.0.0.1:42813/callback/` and `http://127.0.0.1:42813/callback/` as redirect URI
+    -   add `http://127.0.0.1:42813/callback` as redirect URI
 -   add the keys into the fields under the plugin settings
 -   Press Login
 
