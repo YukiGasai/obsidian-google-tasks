@@ -1,6 +1,4 @@
-import { Editor, MarkdownView, Plugin, WorkspaceLeaf } from "obsidian";
-
-const moment = require("moment");
+import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment } from "obsidian";
 import { GoogleTasksSettings, Task, TaskInput } from "./helper/types";
 import { getAllUncompletedTasksOrderdByDue } from "./googleApi/ListAllTasks";
 import {
@@ -56,6 +54,10 @@ export default class GoogleTasks extends Plugin {
 		);
 
 		this.registerDomEvent(document, "click", (event) => {
+			if (!(event.target instanceof HTMLInputElement)) {
+				return;
+			}
+
 			const checkPointElement = event.target as HTMLInputElement;
 			if (
 				!checkPointElement.classList.contains("task-list-item-checkbox")
@@ -76,18 +78,26 @@ export default class GoogleTasks extends Plugin {
 			}
 		});
 
+		const createTodoListModal = async () => {
+			const list = await getAllUncompletedTasksOrderdByDue(this);
+
+			new TaskListModal(this, list).open();
+		};
+
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: "list-google-tasks",
 			name: "List Google Tasks",
 			checkCallback: (checking: boolean) => {
-				if (checking) {
-					return settingsAreCompleteAndLoggedIn(this);
-				}
+				const canRun = settingsAreCompleteAndLoggedIn(this);
 
-				getAllUncompletedTasksOrderdByDue(this).then((list) =>
-					new TaskListModal(this, list).open()
-				);
+				if (checking) {
+					return canRun;
+				}
+				if (!canRun) {
+					return;
+				}
+				createTodoListModal();
 			},
 		});
 
@@ -97,13 +107,42 @@ export default class GoogleTasks extends Plugin {
 			name: "Create Google Tasks",
 
 			checkCallback: (checking: boolean) => {
+				const canRun = settingsAreCompleteAndLoggedIn(this);
+
 				if (checking) {
-					return settingsAreCompleteAndLoggedIn(this);
+					return canRun;
+				}
+
+				if (!canRun) {
+					return;
 				}
 
 				new CreateTaskModal(this).open();
 			},
 		});
+
+		const writeTodoIntoFile = async (editor: Editor) => {
+			const tasks = await getAllUncompletedTasksOrderdByDue(this);
+			tasks.forEach((task) => {
+				let date = "";
+				if (task.due) {
+					date = moment(task.due).format("DD.MM.YYYY");
+				} else {
+					date = "-----------";
+				}
+
+				editor.replaceRange(
+					"- [ ] " +
+						date +
+						"  " +
+						task.title +
+						"  %%" +
+						task.id +
+						"%%\n",
+					editor.getCursor()
+				);
+			});
+		};
 
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
@@ -114,31 +153,17 @@ export default class GoogleTasks extends Plugin {
 				editor: Editor,
 				view: MarkdownView
 			): boolean => {
+				const canRun = settingsAreCompleteAndLoggedIn(this);
+
 				if (checking) {
-					return settingsAreCompleteAndLoggedIn(this);
+					return canRun;
 				}
 
-				getAllUncompletedTasksOrderdByDue(this).then((tasks) => {
-					tasks.forEach((task) => {
-						let date = "";
-						if (task.due) {
-							date = moment(task.due).format("DD.MM.YYYY");
-						} else {
-							date = "-----------";
-						}
+				if (!canRun) {
+					return;
+				}
 
-						editor.replaceRange(
-							"- [ ] " +
-								date +
-								"  " +
-								task.title +
-								"  %%" +
-								task.id +
-								"%%\n",
-							editor.getCursor()
-						);
-					});
-				});
+				writeTodoIntoFile(editor);
 			},
 		});
 

@@ -17,69 +17,68 @@ export class CreateTaskModal extends Modal {
 		super(plugin.app);
 		this.plugin = plugin;
 	}
-	onOpen() {
-		getAllTaskLists(this.plugin).then((taskList) => {
-			this.taskList = taskList[0].id;
+	async onOpen() {
+		const taskList = await getAllTaskLists(this.plugin);
+		this.taskList = taskList[0].id;
 
-			const { contentEl } = this;
+		const { contentEl } = this;
 
-			contentEl.createEl("h1", { text: "Add a new Task" });
-			new Setting(contentEl)
-				.setName("Title")
-				.addText((text) =>
-					text.onChange((value) => {
-						this.taskTitle = value;
-					})
-				)
-				.settingEl.querySelector("input")
-				.focus();
-
-			new Setting(contentEl).setName("Details").addText((text) =>
+		contentEl.createEl("h1", { text: "Add a new Task" });
+		new Setting(contentEl)
+			.setName("Title")
+			.addText((text) =>
 				text.onChange((value) => {
-					this.taskDetails = value;
+					this.taskTitle = value;
 				})
-			);
+			)
+			.settingEl.querySelector("input")
+			.focus();
 
-			const dateSelectElement = customSetting(
-				contentEl,
-				"Due date",
-				""
-			).createEl("input", {
-				type: "date",
-			});
+		new Setting(contentEl).setName("Details").addText((text) =>
+			text.onChange((value) => {
+				this.taskDetails = value;
+			})
+		);
 
-			dateSelectElement.addEventListener("input", (event) => {
-				this.taskDue = dateSelectElement.value;
-			});
-
-			const dropDown = new Setting(contentEl);
-
-			dropDown.setName("Categorie");
-			dropDown.addDropdown((text: DropdownComponent) => {
-				text.onChange((value) => {
-					this.taskList = value;
-				});
-
-				for (let i = 0; i < taskList.length; i++) {
-					text.addOption(taskList[i].id, taskList[i].title);
-				}
-
-				return text;
-			});
-
-			new Setting(contentEl).addButton((button) =>
-				button.setButtonText("Create").onClick(() => {
-					this.close();
-					const taskInput: TaskInput = {
-						title: this.taskTitle,
-						details: this.taskDetails,
-						due: this.taskDue,
-						taskListId: this.taskList,
-					};
-					CreateGoogleTask(this.plugin, taskInput);
-				})
-			);
+		const dateSelectElement = customSetting(
+			contentEl,
+			"Due date",
+			""
+		).createEl("input", {
+			type: "date",
 		});
+
+		dateSelectElement.addEventListener("input", (event) => {
+			this.taskDue = dateSelectElement.value;
+		});
+
+		const dropDown = new Setting(contentEl);
+
+		dropDown.setName("Categorie");
+		dropDown.addDropdown((text: DropdownComponent) => {
+			text.onChange((value) => {
+				this.taskList = value;
+			});
+
+			for (let i = 0; i < taskList.length; i++) {
+				text.addOption(taskList[i].id, taskList[i].title);
+			}
+
+			return text;
+		});
+
+		new Setting(contentEl).addButton((button) =>
+			button.setButtonText("Create").onClick(() => {
+				this.close();
+				const taskInput: TaskInput = {
+					title: this.taskTitle,
+					details: this.taskDetails,
+					due: this.taskDue,
+					taskListId: this.taskList,
+				};
+				CreateGoogleTask(this.plugin, taskInput);
+			})
+		);
 	}
 	onClose() {
 		let { contentEl } = this;

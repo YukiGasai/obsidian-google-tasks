@@ -4,6 +4,7 @@ import {
 	ItemView,
 	Setting,
 	WorkspaceLeaf,
+	moment,
 } from "obsidian";
 import TreeMap from "ts-treemap";
 import { ConfirmationModal } from "../modal/ConfirmationModal";
@@ -24,8 +25,6 @@ import {
 } from "../googleApi/ListAllTasks";
 import { Task, TaskList } from "../helper/types";
 import { UpdateTaskModal } from "../modal/UpdateTaskModal";
-
-const moment = require("moment");
 
 export const VIEW_TYPE_GOOGLE_TASK = "googleTaskView";
 

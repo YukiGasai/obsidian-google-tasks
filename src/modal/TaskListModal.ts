@@ -1,10 +1,8 @@
-import { FuzzySuggestModal } from "obsidian";
+import { FuzzySuggestModal, moment } from "obsidian";
 import { GoogleCompleteTask } from "../googleApi/GoogleCompleteTask";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
 import { Task } from "../helper/types";
-
-const moment = require("moment");
 
 export class TaskListModal extends FuzzySuggestModal<Task> {
 	plugin: GoogleTasks;
@@ -29,19 +27,18 @@ export class TaskListModal extends FuzzySuggestModal<Task> {
 		return `${dateString}` + "\t" + item.title;
 	}
 
-	onChooseItem(item: Task, _: MouseEvent | KeyboardEvent): void {
-		GoogleCompleteTask(this.plugin, item).then((gotUpdated) => {
-			if (!gotUpdated) return;
+	async onChooseItem(item: Task, _: MouseEvent | KeyboardEvent) {
+		const gotUpdated = await GoogleCompleteTask(this.plugin, item);
+		if (!gotUpdated) return;
 
-			this.app.workspace
-				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
-				.forEach((leaf) => {
-					if (leaf.view instanceof GoogleTaskView) {
-						leaf.view.removeTodo(item);
-						leaf.view.addDone(item);
-						leaf.view.loadTaskView();
-					}
-				});
-		});
+		this.app.workspace
+			.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
+			.forEach((leaf) => {
+				if (leaf.view instanceof GoogleTaskView) {
+					leaf.view.removeTodo(item);
+					leaf.view.addDone(item);
+					leaf.view.loadTaskView();
+				}
+			});
 	}
 }
