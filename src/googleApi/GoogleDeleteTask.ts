@@ -1,6 +1,7 @@
 import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
+import { createNotice } from "src/helper/NoticeHelper";
 
 export async function DeleteGoogleTask(
 	plugin: GoogleTasks,
@@ -23,7 +24,9 @@ export async function DeleteGoogleTask(
 			}
 		);
 		if (response.status == 204) {
-			if (showNotice) new Notice("Task deleted");
+			if (showNotice) {
+				createNotice(plugin, "Task updated");
+			}
 			return true;
 		} else {
 			return false;

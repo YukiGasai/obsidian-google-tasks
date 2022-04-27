@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleApiToken: "",
 	askConfirmation: true,
 	refreshInterval: 60,
+	showNotice: true,
 };
 
 export default class GoogleTasks extends Plugin {
@@ -69,7 +70,7 @@ export default class GoogleTasks extends Plugin {
 			)[1] as HTMLElement;
 			const taskId = idElement.textContent;
 
-			if (!settingsAreCompleteAndLoggedIn(this)) return;
+			if (!settingsAreCompleteAndLoggedIn(this, false)) return;
 
 			if (checkPointElement.checked) {
 				GoogleCompleteTaskById(this, taskId);
@@ -89,7 +90,7 @@ export default class GoogleTasks extends Plugin {
 			id: "list-google-tasks",
 			name: "List Google Tasks",
 			checkCallback: (checking: boolean) => {
-				const canRun = settingsAreCompleteAndLoggedIn(this);
+				const canRun = settingsAreCompleteAndLoggedIn(this, false);
 
 				if (checking) {
 					return canRun;
@@ -107,7 +108,7 @@ export default class GoogleTasks extends Plugin {
 			name: "Create Google Tasks",
 
 			checkCallback: (checking: boolean) => {
-				const canRun = settingsAreCompleteAndLoggedIn(this);
+				const canRun = settingsAreCompleteAndLoggedIn(this, false);
 
 				if (checking) {
 					return canRun;
@@ -153,7 +154,7 @@ export default class GoogleTasks extends Plugin {
 				editor: Editor,
 				view: MarkdownView
 			): boolean => {
-				const canRun = settingsAreCompleteAndLoggedIn(this);
+				const canRun = settingsAreCompleteAndLoggedIn(this, false);
 
 				if (checking) {
 					return canRun;

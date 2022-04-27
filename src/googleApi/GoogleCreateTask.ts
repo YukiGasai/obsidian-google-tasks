@@ -3,6 +3,7 @@ import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
 import { Task, TaskInput } from "../helper/types";
+import { createNotice } from "src/helper/NoticeHelper";
 
 export async function CreateGoogleTask(
 	plugin: GoogleTasks,
@@ -34,7 +35,7 @@ export async function CreateGoogleTask(
 			}
 		);
 		if (response.status == 200) {
-			new Notice("New task created");
+			createNotice(plugin, "New task created");
 
 			const task = await response.json();
 
@@ -80,8 +81,7 @@ export async function CreateGoogleTaskFromOldTask(
 			}
 		);
 		if (response.status == 200) {
-			new Notice("Task updated");
-
+			createNotice(plugin, "Task updated");
 			const task = await response.json();
 
 			plugin.app.workspace

@@ -3,6 +3,7 @@ import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasksPlugin from "../GoogleTasksPlugin";
 import { getOneTaskById } from "./ListAllTasks";
 import { Task } from "../helper/types";
+import { createNotice } from "src/helper/NoticeHelper";
 
 //=======================================
 //Complete the tasks
@@ -34,7 +35,7 @@ export async function GoogleCompleteTask(
 		);
 		const newTask = await response.json();
 	} catch (error) {
-		new Notice("Could not complete task");
+		createNotice(plugin, "Could not complete task");
 		return false;
 	}
 	return true;
@@ -78,7 +79,7 @@ export async function GoogleUnCompleteTask(
 		);
 		const newTask = await response.json();
 	} catch (error) {
-		new Notice("Could not complete task");
+		createNotice(plugin, "Could not complete task");
 		return false;
 	}
 	return true;

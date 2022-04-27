@@ -4,6 +4,7 @@ export interface GoogleTasksSettings {
 	googleApiToken: string;
 	askConfirmation: boolean;
 	refreshInterval: number;
+	showNotice: boolean;
 }
 
 export interface TaskList {
