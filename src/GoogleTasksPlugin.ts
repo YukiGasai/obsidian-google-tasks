@@ -1,4 +1,6 @@
-import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment } from "obsidian";
+import { createNotice } from 'src/helper/NoticeHelper';
+import { getRT } from './helper/LocalStorage';
+import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment, Notice } from "obsidian";
 import { GoogleTasksSettings, Task, TaskInput } from "./helper/types";
 import { getAllUncompletedTasksOrderdByDue } from "./googleApi/ListAllTasks";
 import {
@@ -12,7 +14,9 @@ import {
 	GoogleTasksSettingTab,
 	settingsAreCompleteAndLoggedIn,
 } from "./view/GoogleTasksSettingTab";
+
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
+	googleRefreshToken: "",
 	googleClientId: "",
 	googleClientSecret: "",
 	googleApiToken: "",
@@ -23,6 +27,7 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 
 export default class GoogleTasks extends Plugin {
 	settings: GoogleTasksSettings;
+	plugin: Plugin;
 
 	initView = async () => {
 		if (
@@ -40,6 +45,7 @@ export default class GoogleTasks extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		this.plugin = this;
 
 		this.registerView(
 			VIEW_TYPE_GOOGLE_TASK,
@@ -165,6 +171,28 @@ export default class GoogleTasks extends Plugin {
 				}
 
 				writeTodoIntoFile(editor);
+			},
+		});
+
+
+		//Copy Refresh token to clipboard
+		this.addCommand({
+			id: "copy-google-refresh-token",
+			name: "Copy Google Refresh Token to Clipboard",
+
+			callback: () => {
+				const token = getRT();
+				if(token == undefined || token == ''){
+					new Notice("No Refresh Token. Please Login.")
+					return;
+				}
+
+				navigator.clipboard.writeText(token).then(function() {
+					new Notice("Token copied")
+				}, function(err) {
+					new Notice("Could not copy token")
+				});
+				
 			},
 		});
 

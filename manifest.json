@@ -1,10 +1,10 @@
 {
 	"id": "obsidian-google-tasks",
 	"name": "Obsidian Google Tasks",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"minAppVersion": "0.12.0",
 	"description": "Interact with your Google Tasks from Inside Obsidian",
 	"author": "YukiGasai",
 	"authorUrl": "https://github.com/YukiGasai",
-	"isDesktopOnly": true
+	"isDesktopOnly": false
 }

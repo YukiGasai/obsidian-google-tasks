@@ -32,6 +32,13 @@ Manage your Google Tasks from inside Obsidian
 -   add the keys into the fields under the plugin settings
 -   Press Login
 
+### Using the plugin on Mobile (work around)
+
+-   Login on a desktop device
+-   Use the `Copy Google Refresh Token to Clipboard` command on that device
+-   Install the plugin on the phone
+-   Instead of `Login` paste the token from the desktop device into the Refresh token field on the phone
+
 ## Usage
 
 ### Google Task View

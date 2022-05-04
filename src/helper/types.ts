@@ -1,4 +1,5 @@
 export interface GoogleTasksSettings {
+	googleRefreshToken: string;
 	googleClientId: string;
 	googleClientSecret: string;
 	googleApiToken: string;

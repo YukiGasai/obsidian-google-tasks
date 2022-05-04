@@ -24,7 +24,7 @@ export const getRT = (): string => {
  * getExpirationTime from LocalStorage
  * @returns googleExpirationTime
  */
-export const getET = (plugin: GoogleTasksPlugin): number => {
+export const getET = (): number => {
 	const expirationTimeString =
 		window.localStorage.getItem("googleExpirationTime") ?? "0";
 	return parseInt(expirationTimeString, 10);
