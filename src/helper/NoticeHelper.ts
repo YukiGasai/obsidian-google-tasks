@@ -4,7 +4,7 @@ import GoogleTasks from "src/GoogleTasksPlugin";
 export function createNotice(
 	plugin: GoogleTasks,
 	text: string,
-	showNotice: boolean = true
+	showNotice = true
 ) {
 	
 

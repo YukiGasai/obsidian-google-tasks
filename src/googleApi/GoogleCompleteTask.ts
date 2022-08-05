@@ -1,4 +1,3 @@
-import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasksPlugin from "../GoogleTasksPlugin";
 import { getOneTaskById } from "./ListAllTasks";
@@ -13,6 +12,9 @@ export async function GoogleCompleteTask(
 	plugin: GoogleTasksPlugin,
 	task: Task
 ): Promise<boolean> {
+
+	task.children.forEach(subTask => GoogleCompleteTask(plugin,subTask))
+
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(
 		"Authorization",
@@ -33,7 +35,7 @@ export async function GoogleCompleteTask(
 				body: JSON.stringify(task),
 			}
 		);
-		const newTask = await response.json();
+		await response.json();
 	} catch (error) {
 		createNotice(plugin, "Could not complete task");
 		return false;
@@ -57,6 +59,7 @@ export async function GoogleUnCompleteTask(
 	plugin: GoogleTasksPlugin,
 	task: Task
 ): Promise<boolean> {
+
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(
 		"Authorization",
@@ -77,11 +80,14 @@ export async function GoogleUnCompleteTask(
 				body: JSON.stringify(task),
 			}
 		);
-		const newTask = await response.json();
+		await response.json();
 	} catch (error) {
 		createNotice(plugin, "Could not complete task");
 		return false;
 	}
+
+	task.children.forEach(subTask => GoogleUnCompleteTask(plugin,subTask))
+
 	return true;
 }
 

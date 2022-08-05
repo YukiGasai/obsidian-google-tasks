@@ -67,7 +67,7 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 					})
 			);
 
-		let AuthSetting = new Setting(containerEl);
+		const AuthSetting = new Setting(containerEl);
 
 		const createLogOutButton = (button: ButtonComponent) => {
 			button.setButtonText("Logout");
@@ -105,7 +105,7 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 							LoginGoogle(this.plugin);
 
 							let count = 0;
-							let intId = setInterval(() => {
+							const intId = setInterval(() => {
 								count++;
 
 								if (count > 900) {
@@ -189,7 +189,7 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 
 export function settingsAreComplete(
 	plugin: GoogleTasks,
-	showNotice: boolean = true
+	showNotice = true
 ): boolean {
 	if (
 		plugin.settings.googleApiToken == "" ||
@@ -209,14 +209,14 @@ export function settingsAreCorret(plugin: GoogleTasks): boolean {
 		new Notice("API Token is not the correct format");
 		return false;
 	} else if (
-		/^[0-9a-zA-z\-]*\.apps\.googleusercontent\.com$/.test(
+		/^[0-9a-zA-z-]*\.apps\.googleusercontent\.com$/.test(
 			plugin.settings.googleClientId
 		) == false
 	) {
 		new Notice("Client ID Token is not the correct format");
 		return false;
 	} else if (
-		/^[0-9a-zA-z\-]*$/.test(plugin.settings.googleClientSecret) == false
+		/^[0-9a-zA-z-]*$/.test(plugin.settings.googleClientSecret) == false
 	) {
 		new Notice("Client Secret is not the correct format");
 		return false;
@@ -226,7 +226,7 @@ export function settingsAreCorret(plugin: GoogleTasks): boolean {
 
 export function settingsAreCompleteAndLoggedIn(
 	plugin: GoogleTasks,
-	showNotice: boolean = true
+	showNotice = true
 ): boolean {
 	if (!settingsAreComplete(plugin, false) || getRT() == "") {
 		createNotice(

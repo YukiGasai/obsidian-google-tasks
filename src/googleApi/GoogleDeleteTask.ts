@@ -1,4 +1,3 @@
-import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { createNotice } from "src/helper/NoticeHelper";
@@ -6,7 +5,7 @@ import { createNotice } from "src/helper/NoticeHelper";
 export async function DeleteGoogleTask(
 	plugin: GoogleTasks,
 	selfLink: string,
-	showNotice: boolean = true
+	showNotice = true
 ): Promise<boolean> {
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(

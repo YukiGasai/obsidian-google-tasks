@@ -1,5 +1,3 @@
-import GoogleTasksPlugin from "../GoogleTasksPlugin";
-
 //===================
 //GETTER
 //===================
@@ -9,7 +7,7 @@ import GoogleTasksPlugin from "../GoogleTasksPlugin";
  * @returns googleAccessToken
  */
 export const getAT = (): string => {
-	return window.localStorage.getItem("googleAccessToken") ?? "";
+	return window.localStorage.getItem("googleTaskAccessToken") ?? "";
 };
 
 /**
@@ -17,7 +15,7 @@ export const getAT = (): string => {
  * @returns googleRefreshToken
  */
 export const getRT = (): string => {
-	return window.localStorage.getItem("googleRefreshToken") ?? "";
+	return window.localStorage.getItem("googleTaskRefreshToken") ?? "";
 };
 
 /**
@@ -26,7 +24,7 @@ export const getRT = (): string => {
  */
 export const getET = (): number => {
 	const expirationTimeString =
-		window.localStorage.getItem("googleExpirationTime") ?? "0";
+		window.localStorage.getItem("googleTaskExpirationTime") ?? "0";
 	return parseInt(expirationTimeString, 10);
 };
 
@@ -40,7 +38,7 @@ export const getET = (): number => {
  * @returns googleAccessToken
  */
 export const setAT = (googleAccessToken: string) => {
-	window.localStorage.setItem("googleAccessToken", googleAccessToken);
+	window.localStorage.setItem("googleTaskAccessToken", googleAccessToken);
 };
 
 /**
@@ -49,7 +47,7 @@ export const setAT = (googleAccessToken: string) => {
  * @returns googleRefreshToken
  */
 export const setRT = (googleRefreshToken: string) => {
-	window.localStorage.setItem("googleRefreshToken", googleRefreshToken);
+	window.localStorage.setItem("googleTaskRefreshToken", googleRefreshToken);
 };
 
 /**
@@ -59,7 +57,7 @@ export const setRT = (googleRefreshToken: string) => {
  */
 export const setET = (googleExpirationTime: number) => {
 	window.localStorage.setItem(
-		"googleExpirationTime",
+		"googleTaskExpirationTime",
 		googleExpirationTime + ""
 	);
 };

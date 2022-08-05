@@ -40,6 +40,7 @@ export interface Task {
 		}
 	];
 	taskListName?: string;
+	children?: Task[];
 }
 
 export interface TaskListResponse {

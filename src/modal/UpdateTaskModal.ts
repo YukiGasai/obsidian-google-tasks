@@ -6,6 +6,7 @@ import { getAllTaskLists } from "../googleApi/ListAllTasks";
 import { Task } from "../helper/types";
 import { CreateGoogleTaskFromOldTask } from "src/googleApi/GoogleCreateTask";
 import { DeleteGoogleTask } from "src/googleApi/GoogleDeleteTask";
+import { UpdateGoogleTask } from "src/googleApi/GoogleUpdateTask";
 
 export class UpdateTaskModal extends Modal {
 	plugin: GoogleTasks;
@@ -78,16 +79,25 @@ export class UpdateTaskModal extends Modal {
 			return text;
 		});
 
-		new Setting(contentEl).addButton((button) =>
-			button.setButtonText("Update").onClick(() => {
+		const buttonContainer = contentEl.createDiv({cls:"googleButtonContainer"});
+
+		new Setting(buttonContainer).addButton((button) =>
+			button.setButtonText("Update Categorie").onClick(() => {
 				CreateGoogleTaskFromOldTask(this.plugin, this.newTask);
 				DeleteGoogleTask(this.plugin, this.oldTaskSelfLInk, false);
 				this.close();
 			})
 		);
+
+		new Setting(buttonContainer).addButton((button) =>
+		button.setButtonText("Update").onClick(() => {
+			UpdateGoogleTask(this.plugin, this.newTask)
+			this.close();
+		})
+	);
 	}
 	onClose() {
-		let { contentEl } = this;
+		const { contentEl } = this;
 		contentEl.empty();
 	}
 }

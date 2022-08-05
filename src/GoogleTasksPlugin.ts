@@ -1,7 +1,6 @@
-import { createNotice } from 'src/helper/NoticeHelper';
 import { getRT } from './helper/LocalStorage';
 import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment, Notice } from "obsidian";
-import { GoogleTasksSettings, Task, TaskInput } from "./helper/types";
+import { GoogleTasksSettings } from "./helper/types";
 import { getAllUncompletedTasksOrderdByDue } from "./googleApi/ListAllTasks";
 import {
 	GoogleCompleteTaskById,
@@ -28,6 +27,7 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 export default class GoogleTasks extends Plugin {
 	settings: GoogleTasksSettings;
 	plugin: Plugin;
+	showHidden = false;
 
 	initView = async () => {
 		if (

@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const request = require('request');
+const util = require('util')
+
+const requestPromise = util.promisify(request);
+
 import TreeMap from "ts-treemap";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
@@ -79,38 +85,50 @@ export async function getAllTasksFromList(
 	plugin: GoogleTasks,
 	taskListId: string
 ): Promise<Task[]> {
-	const requestHeaders: HeadersInit = new Headers();
-	requestHeaders.append(
-		"Authorization",
-		"Bearer " + (await getGoogleAuthToken(plugin))
-	);
-	requestHeaders.append("Content-Type", "application/json");
+
 	try {
 		let resultTaskList: Task[] = [];
-		let allTasksData: TaskResponse;
+		let allTasksData: TaskResponse = undefined;
+
 		do {
 			let url = `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?`;
 			url += "maxResults=100";
 			url += "&showCompleted=true";
 			url += "&showDeleted=false";
-			url += "&showHidden=true";
+			if(plugin.showHidden){		
+				url += "&showHidden=true";
+			}
 			url += `&key=${plugin.settings.googleApiToken}`;
 
 			if (allTasksData != undefined) {
 				url += `&pageToken=${allTasksData.nextPageToken}`;
 			}
 
-			const response = await fetch(url, {
-				method: "GET",
-				headers: requestHeaders,
-				redirect: "follow",
+			const response = await requestPromise({
+				'method': 'GET',
+				'url': url,
+				'headers': {
+					'Authorization': `Bearer ${(await getGoogleAuthToken(plugin))}`
+				}
 			});
 
-			allTasksData = await response.json();
+			allTasksData = JSON.parse(response.body);
+	
 			if (allTasksData.items && allTasksData.items.length) {
 				resultTaskList = [...resultTaskList, ...allTasksData.items];
 			}
+			
 		} while (allTasksData.nextPageToken);
+
+		resultTaskList.forEach((task:Task) => {
+			task.children = resultTaskList.filter((foundTask:Task)=>foundTask.parent == task.id)
+			if(task.children.length){
+				task.children.sort((a:Task, b:Task)=> parseInt(a.position) - parseInt(b.position))
+			}
+		});
+
+		resultTaskList = resultTaskList.filter(tasks => !tasks.parent);
+
 
 		return resultTaskList;
 	} catch (error) {
@@ -139,6 +157,7 @@ export async function getAllTasks(plugin: GoogleTasks): Promise<Task[]> {
 
 		resultTasks = [...resultTasks, ...tasks];
 	}
+	
 	return resultTasks;
 }
 
@@ -165,7 +184,7 @@ export async function getAllUncompletedTasksOrderdByDue(
 export const groupBy = function groupByArray(
 	taskList: Task[]
 ): TreeMap<string, Task[]> {
-	let resultMap = new TreeMap<string, Task[]>();
+	const resultMap = new TreeMap<string, Task[]>();
 
 	taskList.forEach((task) => {
 		if (resultMap.has(task.due)) {
@@ -184,9 +203,8 @@ export const groupBy = function groupByArray(
 
 export async function getAllUncompletedTasksGroupedByDue(
 	plugin: GoogleTasks,
-	tasks?: Task[]
 ): Promise<TreeMap<string, Task[]>> {
-	tasks = tasks ?? (await getAllTasks(plugin));
+	let tasks = await getAllTasks(plugin);
 
 	tasks = tasks.filter((task) => !task.completed);
 
@@ -197,7 +215,7 @@ export async function getAllUncompletedTasksGroupedByDue(
 		return new Date(taskA.due).valueOf() - new Date(taskB.due).valueOf();
 	});
 
-	let resultMap = groupBy(tasks);
+	const resultMap = groupBy(tasks);
 
 	resultMap.set("No due date", unTimedTasks);
 	return resultMap;
@@ -208,9 +226,8 @@ export async function getAllUncompletedTasksGroupedByDue(
  */
 export async function getAllCompletedTasksGroupedByDue(
 	plugin: GoogleTasks,
-	tasks?: Task[]
 ): Promise<TreeMap<string, Task[]>> {
-	tasks = tasks ?? (await getAllTasks(plugin));
+	let tasks = await getAllTasks(plugin);
 
 	tasks = tasks.filter((task) => task.completed);
 
@@ -221,7 +238,7 @@ export async function getAllCompletedTasksGroupedByDue(
 		return new Date(taskA.due).valueOf() - new Date(taskB.due).valueOf();
 	});
 
-	let resultMap = groupBy(tasks);
+	const resultMap = groupBy(tasks);
 
 	resultMap.set("No due date", unTimedTasks);
 	return resultMap;

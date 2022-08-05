@@ -20,7 +20,6 @@ import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
 import {
 	getAllCompletedTasksGroupedByDue,
 	getAllTaskLists,
-	getAllTasks,
 	getAllUncompletedTasksGroupedByDue,
 } from "../googleApi/ListAllTasks";
 import { Task, TaskList } from "../helper/types";
@@ -36,11 +35,11 @@ export class GoogleTaskView extends ItemView {
 
 	taskLists: TaskList[];
 
-	showDone: boolean = false;
-	showTodo: boolean = true;
+	showDone = false;
+	showTodo = true;
 
-	currentListId: string = "000";
-	currentListIndex: Number = 0;
+	currentListId = "000";
+	currentListIndex = 0;
 
 	intervalId: number;
 
@@ -76,6 +75,9 @@ export class GoogleTaskView extends ItemView {
 		}
 
 		taskGroup.forEach((tasks: Task[], dueDate: string) => {
+
+			if(!tasks.length)return;
+
 			let dateString = "No due date";
 
 			if (this.currentListId != "000") {
@@ -103,129 +105,172 @@ export class GoogleTaskView extends ItemView {
 				text: dateString,
 			});
 
-			tasks.forEach((task) => {
-				const due = task.due ?? "No due date";
-
-				const taskContainer = mainContainer.createDiv({
-					cls: "googleTaskContainer",
-				});
-
-				let timer = 0;
-				let startTime = 0;
-				let endTime = 0;
-				let longpress = false;
-
-				taskContainer.addEventListener("mousedown", () => {
-					startTime = new Date().getTime();
-				});
-
-				taskContainer.addEventListener("mouseup", () => {
-					endTime = new Date().getTime();
-					longpress = endTime - startTime < 500 ? false : true;
-				});
-
-				taskContainer.addEventListener("click", () => {
-					if (longpress) {
-						longpress = false;
-						new UpdateTaskModal(this.plugin, task).open();
-					}
-				});
-
-				if (!isUnDoneList) {
-					const trashElement = new ButtonComponent(taskContainer);
-					trashElement.setClass("googleTaskTrash");
-					trashElement.setIcon("cross");
-					trashElement.onClick(() => {
-						if (this.plugin.settings.askConfirmation) {
-							new ConfirmationModal(this.plugin, async () =>
-								this.deleteTask(task)
-							).open();
-						} else {
-							this.deleteTask(task);
-						}
-					});
-				}
-
-				const checkBox = taskContainer.createEl("input", {
-					type: "checkbox",
-				});
-				if (!isUnDoneList) {
-					checkBox.checked = true;
-				}
-				checkBox.addEventListener("click", async (event) => {
-					if (isUnDoneList) {
-						const gotDeleted = await GoogleCompleteTask(
-							this.plugin,
-							task
-						);
-						if (!gotDeleted) return;
-
-						//ADD to done list
-						if (this.doneTasksGroups.has(due)) {
-							this.doneTasksGroups.get(due).push(task);
-						} else {
-							this.doneTasksGroups.set(due, [task]);
-						}
-
-						//Remove from todo list
-						this.todoTasksGroups.get(due).remove(task);
-						if (this.todoTasksGroups.get(due).length == 0) {
-							this.todoTasksGroups.delete(due);
-						}
-
-						this.loadTaskView();
-					} else {
-						const gotRestored = await GoogleUnCompleteTask(
-							this.plugin,
-							task
-						);
-						if (!gotRestored) return;
-
-						//ADD to todo list
-						if (this.todoTasksGroups.has(due)) {
-							this.todoTasksGroups.get(due).push(task);
-						} else {
-							this.todoTasksGroups.set(due, [task]);
-						}
-
-						//Remove from todo list
-						this.doneTasksGroups.get(due).remove(task);
-						if (this.doneTasksGroups.get(due).length == 0) {
-							this.doneTasksGroups.delete(due);
-						}
-
-						this.loadTaskView();
-					}
-				});
-
-				const taskTextContainer = taskContainer.createDiv({
-					cls: "googleTaskTextContainer",
-				});
-
-				taskTextContainer.createEl("span", {
-					cls: "googleTaskTitle",
-					text: task.title,
-				});
-
-				if (due != "No due date" && isUnDoneList) {
-					if (moment(due).isBefore()) {
-						taskTextContainer.addClass("googleTaskOverDue");
-					}
-				}
-
-				taskTextContainer.createEl("span", {
-					cls: "googleTaskDetails",
-					text: task.notes,
-				});
-			});
+			tasks.forEach((task:Task) => this.createTaskElement(task, mainContainer, isUnDoneList, false));
 		});
 	}
+
+
+createTaskElement(task:Task, containerEl: HTMLElement, isUnDoneList: boolean, isSubTaskList: boolean){
+	const due = task.due ?? "No due date";
+
+	const taskContainer = containerEl.createDiv({
+		cls: "googleTaskContainer",
+	});
+
+	let startTime = 0;
+	let endTime = 0;
+	let longpress = false;
+
+	taskContainer.addEventListener("mousedown", () => {
+		startTime = new Date().getTime();
+	});
+
+	taskContainer.addEventListener("mouseup", () => {
+		endTime = new Date().getTime();
+		longpress = endTime - startTime < 500 ? false : true;
+	});
+
+	taskContainer.addEventListener("click", () => {
+		if (longpress) {
+			longpress = false;
+			new UpdateTaskModal(this.plugin, task).open();
+		}
+	});
+
+	if (!isUnDoneList) {
+		const trashElement = new ButtonComponent(taskContainer);
+		trashElement.setClass("googleTaskTrash");
+		trashElement.setIcon("cross");
+		trashElement.onClick(() => {
+			if (this.plugin.settings.askConfirmation) {
+				new ConfirmationModal(this.plugin, async () =>
+					this.deleteTask(task)
+				).open();
+			} else {
+				this.deleteTask(task);
+			}
+		});
+	}
+
+	const checkBox = taskContainer.createEl("input", {
+		type: "checkbox",
+	});
+	if (!isUnDoneList || (isSubTaskList && task.completed) ) {
+		checkBox.checked = true;
+	}
+	checkBox.addEventListener("click", async (event) => {
+
+		if(task.parent){
+			if(checkBox.checked){
+				await GoogleCompleteTask(this.plugin,task);
+			}else{
+				await GoogleUnCompleteTask(this.plugin, task);
+			}
+		}else{
+
+			if (isUnDoneList) {
+				const gotDeleted = await GoogleCompleteTask(
+					this.plugin,
+					task
+				);
+				if (!gotDeleted) return;
+
+				//ADD to done list
+				if (this.doneTasksGroups.has(due)) {
+					this.doneTasksGroups.get(due).push(task);
+				} else {
+					this.doneTasksGroups.set(due, [task]);
+				}
+
+				//Remove from todo list
+				this.todoTasksGroups.get(due).remove(task);
+				if (this.todoTasksGroups.get(due).length == 0) {
+					this.todoTasksGroups.delete(due);
+				}
+
+				this.loadTaskView();
+			} else {
+				const gotRestored = await GoogleUnCompleteTask(
+					this.plugin,
+					task
+				);
+				if (!gotRestored) return;
+
+				//ADD to todo list
+				if (this.todoTasksGroups.has(due)) {
+					this.todoTasksGroups.get(due).push(task);
+				} else {
+					this.todoTasksGroups.set(due, [task]);
+				}
+
+				//Remove from todo list
+				this.doneTasksGroups.get(due).remove(task);
+				if (this.doneTasksGroups.get(due).length == 0) {
+					this.doneTasksGroups.delete(due);
+				}
+
+				this.loadTaskView();
+			}
+		}
+	});
+
+	const taskTextContainer = taskContainer.createDiv({
+		cls: "googleTaskTextContainer",
+	});
+
+	taskTextContainer.createEl("span", {
+		cls: "googleTaskTitle",
+		text: task.title,
+	});
+
+	if (due != "No due date" && isUnDoneList) {
+		if (moment(due).isBefore()) {
+			taskTextContainer.addClass("googleTaskOverDue");
+		}
+	}
+
+	taskTextContainer.createEl("span", {
+		cls: "googleTaskDetails",
+		text: task.notes,
+	});
+
+	if(!isSubTaskList && task.children?.length){
+		const arrow = taskContainer.createEl("span", {
+			cls: "googleTaskArrowDown",
+			text: "^"
+		});
+		arrow.addEventListener("click", (event) => {
+			const subContainer = arrow.parentElement.nextSibling;
+			if(subContainer  instanceof HTMLDivElement){
+				if(subContainer.classList.contains("hideSubTasks")){
+					subContainer.classList.remove("hideSubTasks")
+					arrow.textContent = "^";
+				}else{
+					subContainer.classList.add("hideSubTasks")
+					arrow.textContent = "˅";
+				}
+			}
+		})
+	}
+
+	//Check if the task has child task to add
+	if(!isSubTaskList && task.children?.length){
+
+		const subTaskContainer = containerEl.createDiv({
+			cls: "googleSubTaskContainer"
+		});
+
+		task.children.forEach((subTask:Task) => this.createTaskElement(subTask, subTaskContainer, isUnDoneList, true));
+	}
+
+}
+
 
 	public async loadTaskView() {
 		const container = this.containerEl.children[1];
 
 		container.empty();
-
+		
 		const mainContainer = container.createDiv({
 			cls: "googleTaskMainContainer",
 		});
@@ -251,7 +296,7 @@ export class GoogleTaskView extends ItemView {
 		const listDropDown = new Setting(titleContainer);
 
 		listDropDown.addDropdown((dropDown) => {
-			let optionList: DropdownComponent[] = [
+			const optionList: DropdownComponent[] = [
 				dropDown.addOption("000", "Combined"),
 			];
 
@@ -290,6 +335,7 @@ export class GoogleTaskView extends ItemView {
 			cls: "googleTaskTodoContainer",
 		});
 
+
 		this.displayTaskGroupList(this.todoTasksGroups, todoContainer, true);
 
 		mainContainer
@@ -298,12 +344,14 @@ export class GoogleTaskView extends ItemView {
 			})
 			.addEventListener("click", async () => {
 				this.showDone = !this.showDone;
-
+				this.plugin.showHidden = !this.plugin.showHidden;
 				if (this.showDone) {
 					doneContainer.addClass("googleTaskForceShow");
+					this.onOpen();
 				} else {
 					doneContainer.removeClass("googleTaskForceShow");
 				}
+	
 			});
 		mainContainer.createEl("hr");
 
@@ -322,6 +370,7 @@ export class GoogleTaskView extends ItemView {
 		} else {
 			todoContainer.removeClass("googleTaskForceShow");
 		}
+
 		this.displayTaskGroupList(this.doneTasksGroups, doneContainer, false);
 	}
 
@@ -348,15 +397,17 @@ export class GoogleTaskView extends ItemView {
 		}
 		this.registerInterval(
 			(this.intervalId = window.setInterval(
-				() => this.updateFromServer(),
+				() => {
+					this.updateFromServer()					
+				},
 				this.plugin.settings.refreshInterval * 1000
 			))
 		);
 	}
 
 	async onOpen() {
-		this.updateFromServer();
-		this.setRefreshInterval();
+		await this.updateFromServer();
+		await this.setRefreshInterval();
 	}
 
 	public addTodo(task: Task) {
@@ -392,16 +443,12 @@ export class GoogleTaskView extends ItemView {
 		if (settingsAreCompleteAndLoggedIn(this.plugin)) {
 			this.taskLists = await getAllTaskLists(this.plugin);
 
-			const unFilteredList = await getAllTasks(this.plugin);
-
 			this.todoTasksGroups = await getAllUncompletedTasksGroupedByDue(
-				this.plugin,
-				unFilteredList
+				this.plugin
 			);
 
 			this.doneTasksGroups = await getAllCompletedTasksGroupedByDue(
-				this.plugin,
-				unFilteredList
+				this.plugin
 			);
 
 			this.loadTaskView();
@@ -423,7 +470,7 @@ export class GoogleTaskView extends ItemView {
 }
 
 export function getListId(task: Task): string {
-	let selfLink = task.selfLink;
+	const selfLink = task.selfLink;
 
 	const startIndex = "https://www.googleapis.com/tasks/v1/lists/".length;
 

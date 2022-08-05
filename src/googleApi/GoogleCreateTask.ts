@@ -1,4 +1,3 @@
-import { Notice } from "obsidian";
 import { getGoogleAuthToken } from "./GoogleAuth";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
@@ -82,7 +81,7 @@ export async function CreateGoogleTaskFromOldTask(
 		);
 		if (response.status == 200) {
 			createNotice(plugin, "Task updated");
-			const task = await response.json();
+			await response.json();
 
 			plugin.app.workspace
 				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)

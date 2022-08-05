@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import GoogleTasks from "../GoogleTasksPlugin";
 import {
 	settingsAreComplete,
@@ -63,6 +64,7 @@ export async function LoginGoogle(plugin: GoogleTasks) {
 		const authorizeUrl = oAuth2Client.generateAuthUrl({
 			scope: "https://www.googleapis.com/auth/tasks",
 			access_type: "offline",
+			prompt: "consent"
 		});
 
 		const server = http
@@ -89,7 +91,9 @@ export async function LoginGoogle(plugin: GoogleTasks) {
 
 						console.info("Tokens acquired.");
 					}
-				} catch (e) {}
+				} catch (e) {
+					console.error("Error getting Tokens.");
+				}
 			})
 			.listen(42813, () => {
 				// open the browser to the authorize url to start the workflow

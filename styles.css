@@ -103,6 +103,24 @@
 	color: red;
 }
 
+.googleSubTaskContainer{
+	display: flex;
+	flex-direction: column;
+	align-self: flex-end;
+	padding-left: 30px;
+
+}
+
+.googleTaskArrowDown{
+	width: 40px;
+	height: 40px;
+	align-self: flex-start;
+}
+
+.hideSubTasks {
+	display: none;
+}
+
 /*
 	Settings Modal
 */
@@ -149,6 +167,33 @@ input[type="date"] {
 .googleTaskConfirmAccept:hover {
 	background: rgb(193, 79, 79) !important;
 }
+
+.googleButtonContainer{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	padding-top:10px ;
+}
+
+
+
+.googleButtonContainer > .setting-item > .setting-item-info{
+	width:0;
+}
+
+.googleButtonContainer > .setting-item,
+.googleButtonContainer > .setting-item > .setting-item-control,
+.googleButtonContainer > .setting-item > .setting-item-control > button {
+	width:200px;
+	height: 50px;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	margin: 0;
+}
+
+.googleButtonContainer > 
 
 .googleTaskOverDue {
 	color: red;
