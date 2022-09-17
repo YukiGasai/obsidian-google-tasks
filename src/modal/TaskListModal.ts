@@ -22,7 +22,7 @@ export class TaskListModal extends FuzzySuggestModal<Task> {
 	getItemText(item: Task): string {
 		let dateString = "\t\t";
 		if (item.due) {
-			dateString = moment(item.due).format("DD.MM.YYYY");
+			dateString = moment(item.due).local().format("DD.MM.YYYY");
 		}
 		return `${dateString}` + "\t" + item.title;
 	}

@@ -56,7 +56,7 @@ export class UpdateTaskModal extends Modal {
 		});
 
 		if (this.newTask.due) {
-			dateSelectElement.value = moment(this.newTask.due).format(
+			dateSelectElement.value = moment(this.newTask.due).local().format(
 				"YYYY-MM-DD"
 			);
 		}
