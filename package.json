@@ -1,6 +1,6 @@
 {
-	"name": "obsidian-google-tasks",
-	"version": "1.4.1",
+	"name": "google-tasks",
+	"version": "1.4.2",
 	"description": "This is a plugin for Obsidian to interact with your google tasks",
 	"main": "main.js",
 	"scripts": {
