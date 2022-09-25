@@ -91,7 +91,7 @@ export class GoogleTaskView extends ItemView {
 			}
 
 			if (moment(dueDate).isValid()) {
-				dateString = moment(dueDate).local().calendar(null, {
+				dateString = moment(dueDate).utc().calendar(null, {
 					lastDay: "[Yesterday]",
 					sameDay: "[Today]",
 					nextDay: "[Tomorrow]",
@@ -224,8 +224,8 @@ createTaskElement(task:Task, containerEl: HTMLElement, isUnDoneList: boolean, is
 	});
 
 	if (due != "No due date" && isUnDoneList) {
-		if (moment(due).local().isBefore()) {
-			taskTextContainer.addClass("googleTaskOverDue");
+		if (moment(due).utc().isBefore(moment(), "date")) {
+			taskTextContainer.style.color = "red";
 		}
 	}
 
