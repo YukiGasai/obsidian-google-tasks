@@ -133,7 +133,7 @@ export default class GoogleTasks extends Plugin {
 			tasks.forEach((task) => {
 				let date = "";
 				if (task.due) {
-					date = moment(task.due).utc().format("DD.MM.YYYY");
+					date = moment.utc(task.due).local().format("YYYY-MM-DD");
 				} else {
 					date = "-----------";
 				}

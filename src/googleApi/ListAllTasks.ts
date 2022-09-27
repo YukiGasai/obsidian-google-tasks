@@ -121,6 +121,11 @@ export async function getAllTasksFromList(
 		} while (allTasksData.nextPageToken);
 
 		resultTaskList.forEach((task:Task) => {
+			if(task.due){
+				console.log(task.due)
+				task.due = window.moment(task.due).add(12, "hour").toISOString();
+				console.log(task.due)
+			}
 			task.children = resultTaskList.filter((foundTask:Task)=>foundTask.parent == task.id)
 			if(task.children.length){
 				task.children.sort((a:Task, b:Task)=> parseInt(a.position) - parseInt(b.position))
