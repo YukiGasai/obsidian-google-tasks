@@ -122,9 +122,7 @@ export async function getAllTasksFromList(
 
 		resultTaskList.forEach((task:Task) => {
 			if(task.due){
-				console.log(task.due)
 				task.due = window.moment(task.due).add(12, "hour").toISOString();
-				console.log(task.due)
 			}
 			task.children = resultTaskList.filter((foundTask:Task)=>foundTask.parent == task.id)
 			if(task.children.length){
