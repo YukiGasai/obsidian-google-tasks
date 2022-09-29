@@ -37,7 +37,10 @@ export async function CreateGoogleTask(
 			createNotice(plugin, "New task created");
 
 			const task = await response.json();
-
+			if(task.due){
+				task.due = window.moment(task.due).add(12, "hour").toISOString();
+			}
+			
 			plugin.app.workspace
 				.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK)
 				.forEach((leaf) => {

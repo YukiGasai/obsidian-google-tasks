@@ -38,6 +38,9 @@ export async function getOneTaskById(
 			);
 			if (response.status == 200) {
 				const task: Task = await response.json();
+				if(task.due){
+					task.due = window.moment(task.due).add(12, "hour").toISOString();
+				}
 				return task;
 			}
 		} catch (error) {
