@@ -1,7 +1,7 @@
 import { getRT } from './helper/LocalStorage';
-import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment, Notice } from "obsidian";
+import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment, Notice, TFile } from "obsidian";
 import { GoogleTasksSettings } from "./helper/types";
-import { getAllUncompletedTasksOrderdByDue } from "./googleApi/ListAllTasks";
+import { getAllUncompletedTasksOrderdByDue, getOneTaskById } from "./googleApi/ListAllTasks";
 import {
 	GoogleCompleteTaskById,
 	GoogleUnCompleteTaskById,
@@ -13,6 +13,8 @@ import {
 	GoogleTasksSettingTab,
 	settingsAreCompleteAndLoggedIn,
 } from "./view/GoogleTasksSettingTab";
+import { normalize } from 'path';
+import { taskToList } from './helper/TaskToList';
 
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleRefreshToken: "",
@@ -26,9 +28,9 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 
 export default class GoogleTasks extends Plugin {
 	settings: GoogleTasksSettings;
-	plugin: Plugin;
+	plugin: GoogleTasks;
 	showHidden = false;
-
+	openEvent: null;
 	initView = async () => {
 		if (
 			this.app.workspace.getLeavesOfType(VIEW_TYPE_GOOGLE_TASK).length ===
@@ -43,9 +45,51 @@ export default class GoogleTasks extends Plugin {
 		);
 	};
 
+	onLayoutReady = async() => {
+		
+
+		this.app.workspace.on("file-open", async (file:TFile) => {
+			if(!file)return;
+			let content = await this.app.vault.adapter.read(normalize(file.path));
+			if(!content.match("%%")) {
+				return;
+			}
+
+			const matches = [...content.matchAll(/\- \[[ xX]\] .* %%[A-Za-z0-9]{22}%%/g)]
+
+			for(let match of matches) {
+				let line = match[0];
+				const id = match[0].match(/%%[A-Za-z0-9]{22}%%/)[0].substring(2).slice(0,-2);
+				try{
+					const task = await getOneTaskById(this,id);
+					if(task.status === "completed") {
+						
+						const indexOfX = line.indexOf("- [ ]")
+					
+						if(indexOfX > -1){
+							line = line.replace("- [ ] ", "- [x] ")
+						}
+						
+					}else {
+						const indexOfX = line.indexOf("- [x] ")
+						if(indexOfX > -1){
+							line = line.replace("- [x] ", "- [ ] ")
+						}
+					}
+				}catch(err){
+
+				}
+		
+				content = content.replace(match[0], line);
+			}
+			await this.app.vault.adapter.write(normalize(file.path), content);
+		})
+	}
+
 	async onload() {
 		await this.loadSettings();
 		this.plugin = this;
+		this.app.workspace.onLayoutReady(this.onLayoutReady);
 
 		this.registerView(
 			VIEW_TYPE_GOOGLE_TASK,
@@ -71,9 +115,10 @@ export default class GoogleTasks extends Plugin {
 			)
 				return;
 
-			const idElement = checkPointElement.parentElement.querySelectorAll(
+			const idElement = checkPointElement.parentElement.parentElement.querySelectorAll(
 				".cm-comment.cm-list-1"
 			)[1] as HTMLElement;
+
 			const taskId = idElement.textContent;
 
 			if (!settingsAreCompleteAndLoggedIn(this, false)) return;
@@ -96,7 +141,7 @@ export default class GoogleTasks extends Plugin {
 			id: "list-google-tasks",
 			name: "List Google Tasks",
 			checkCallback: (checking: boolean) => {
-				const canRun = settingsAreCompleteAndLoggedIn(this, false);
+				const canRun = settingsAreCompleteAndLoggedIn(this.plugin, false);
 
 				if (checking) {
 					return canRun;
@@ -128,24 +173,30 @@ export default class GoogleTasks extends Plugin {
 			},
 		});
 
+		//Create a new task command
+		this.addCommand({
+			id: "create-google-task-with-insert",
+			name: "Create Google Tasks and insert it",
+			editorCheckCallback: (checking, editor, view): boolean => {
+				const canRun = settingsAreCompleteAndLoggedIn(this, false);
+
+				if (checking) {
+					return canRun;
+				}
+
+				if (!canRun) {
+					return;
+				}
+
+				new CreateTaskModal(this, editor).open();
+			}
+		});
+
 		const writeTodoIntoFile = async (editor: Editor) => {
 			const tasks = await getAllUncompletedTasksOrderdByDue(this);
 			tasks.forEach((task) => {
-				let date = "";
-				if (task.due) {
-					date = moment.utc(task.due).local().format("YYYY-MM-DD");
-				} else {
-					date = "-----------";
-				}
-
 				editor.replaceRange(
-					"- [ ] " +
-						date +
-						"  " +
-						task.title +
-						"  %%" +
-						task.id +
-						"%%\n",
+					taskToList(task),
 					editor.getCursor()
 				);
 			});
@@ -202,6 +253,7 @@ export default class GoogleTasks extends Plugin {
 
 	onunload() {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_GOOGLE_TASK);
+		this.app.vault.offref(this.openEvent);
 	}
 
 	async loadSettings() {

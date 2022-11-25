@@ -7,7 +7,7 @@ import { createNotice } from "src/helper/NoticeHelper";
 export async function CreateGoogleTask(
 	plugin: GoogleTasks,
 	taskInput: TaskInput
-) {
+) : Promise<Task>{
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(
 		"Authorization",
@@ -49,10 +49,12 @@ export async function CreateGoogleTask(
 						leaf.view.loadTaskView();
 					}
 				});
+			return task;
 		}
 	} catch (error) {
 		console.error(error);
 	}
+
 }
 
 export async function CreateGoogleTaskFromOldTask(

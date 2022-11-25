@@ -13,7 +13,7 @@ export async function GoogleCompleteTask(
 	task: Task
 ): Promise<boolean> {
 
-	task.children.forEach(subTask => GoogleCompleteTask(plugin,subTask))
+	task.children?.forEach(subTask => GoogleCompleteTask(plugin,subTask))
 
 	const requestHeaders: HeadersInit = new Headers();
 	requestHeaders.append(
@@ -86,7 +86,7 @@ export async function GoogleUnCompleteTask(
 		return false;
 	}
 
-	task.children.forEach(subTask => GoogleUnCompleteTask(plugin,subTask))
+	task.children?.forEach(subTask => GoogleUnCompleteTask(plugin,subTask))
 
 	return true;
 }

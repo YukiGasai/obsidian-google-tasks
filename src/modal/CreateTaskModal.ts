@@ -1,21 +1,25 @@
-import { DropdownComponent, Modal, Setting } from "obsidian";
+import { DropdownComponent, Editor, Modal, Setting } from "obsidian";
 import { customSetting } from "../helper/CustomSettingElement";
 import { CreateGoogleTask } from "../googleApi/GoogleCreateTask";
 import GoogleTasks from "../GoogleTasksPlugin";
 import { getAllTaskLists } from "../googleApi/ListAllTasks";
-import { TaskInput } from "../helper/types";
+import { Task, TaskInput } from "../helper/types";
+import { taskToList } from "src/helper/TaskToList";
 
 export class CreateTaskModal extends Modal {
 	plugin: GoogleTasks;
+	editor: Editor;
 	taskTitle: string;
 	taskDetails: string;
 	taskList: string;
 	taskDue: string;
+	createdTask: Task;
 
 	onSubmit: (taskInput: TaskInput) => void;
-	constructor(plugin: GoogleTasks) {
+	constructor(plugin: GoogleTasks, editor: Editor = null) {
 		super(plugin.app);
 		this.plugin = plugin;
+		this.editor = editor
 	}
 	async onOpen() {
 		const taskList = await getAllTaskLists(this.plugin);
@@ -68,20 +72,26 @@ export class CreateTaskModal extends Modal {
 		});
 
 		new Setting(contentEl).addButton((button) =>
-			button.setButtonText("Create").onClick(() => {
-				this.close();
+			button.setButtonText("Create").onClick(async() => {
 				const taskInput: TaskInput = {
 					title: this.taskTitle,
 					details: this.taskDetails,
 					due: this.taskDue,
 					taskListId: this.taskList,
 				};
-				CreateGoogleTask(this.plugin, taskInput);
+				this.createdTask = await CreateGoogleTask(this.plugin, taskInput);
+				this.close();
 			})
 		);
 	}
 	onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
+
+		if(this.editor){
+			const cursor = this.editor.getCursor();
+			this.editor.setLine(cursor.line, taskToList(this.createdTask) )
+		}
+
 	}
 }
