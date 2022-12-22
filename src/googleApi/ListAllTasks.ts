@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const request = require('request');
-const util = require('util')
 
-const requestPromise = util.promisify(request);
 
 import TreeMap from "ts-treemap";
 import { getGoogleAuthToken } from "./GoogleAuth";
@@ -38,7 +34,7 @@ export async function getOneTaskById(
 			);
 			if (response.status == 200) {
 				const task: Task = await response.json();
-				if(task.due){
+				if (task.due) {
 					task.due = window.moment(task.due).add(12, "hour").toISOString();
 				}
 				return task;
@@ -98,7 +94,7 @@ export async function getAllTasksFromList(
 			url += "maxResults=100";
 			url += "&showCompleted=true";
 			url += "&showDeleted=false";
-			if(plugin.showHidden){		
+			if (plugin.showHidden) {
 				url += "&showHidden=true";
 			}
 			url += `&key=${plugin.settings.googleApiToken}`;
@@ -107,29 +103,34 @@ export async function getAllTasksFromList(
 				url += `&pageToken=${allTasksData.nextPageToken}`;
 			}
 
-			const response = await requestPromise({
+			const requestHeaders: HeadersInit = new Headers();
+			requestHeaders.append(
+				"Authorization",
+				"Bearer " + (await getGoogleAuthToken(plugin))
+			);
+			requestHeaders.append("Content-Type", "application/json");
+
+			const response = await fetch(url, {
 				'method': 'GET',
-				'url': url,
-				'headers': {
-					'Authorization': `Bearer ${(await getGoogleAuthToken(plugin))}`
-				}
+				'headers': requestHeaders,
 			});
 
-			allTasksData = JSON.parse(response.body);
-	
+			allTasksData = await response.json();
+
+
 			if (allTasksData.items && allTasksData.items.length) {
 				resultTaskList = [...resultTaskList, ...allTasksData.items];
 			}
-			
+
 		} while (allTasksData.nextPageToken);
 
-		resultTaskList.forEach((task:Task) => {
-			if(task.due){
+		resultTaskList.forEach((task: Task) => {
+			if (task.due) {
 				task.due = window.moment(task.due).add(12, "hour").toISOString();
 			}
-			task.children = resultTaskList.filter((foundTask:Task)=>foundTask.parent == task.id)
-			if(task.children.length){
-				task.children.sort((a:Task, b:Task)=> parseInt(a.position) - parseInt(b.position))
+			task.children = resultTaskList.filter((foundTask: Task) => foundTask.parent == task.id)
+			if (task.children.length) {
+				task.children.sort((a: Task, b: Task) => parseInt(a.position) - parseInt(b.position))
 			}
 		});
 
@@ -163,7 +164,7 @@ export async function getAllTasks(plugin: GoogleTasks): Promise<Task[]> {
 
 		resultTasks = [...resultTasks, ...tasks];
 	}
-	
+
 	return resultTasks;
 }
 
