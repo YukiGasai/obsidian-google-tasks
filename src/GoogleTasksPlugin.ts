@@ -48,42 +48,47 @@ export default class GoogleTasks extends Plugin {
 	onLayoutReady = async() => {
 		
 
-		// this.app.workspace.on("file-open", async (file:TFile) => {
-		// 	if(!file)return;
-		// 	let content = await this.app.vault.adapter.read(normalize(file.path));
-		// 	if(!content.match("%%")) {
-		// 		return;
-		// 	}
-
-		// 	const matches = [...content.matchAll(/\- \[[ xX]\] .* %%[A-Za-z0-9]{22}%%/g)]
-
-		// 	for(let match of matches) {
-		// 		let line = match[0];
-		// 		const id = match[0].match(/%%[A-Za-z0-9]{22}%%/)[0].substring(2).slice(0,-2);
-		// 		try{
-		// 			const task = await getOneTaskById(this,id);
-		// 			if(task.status === "completed") {
-						
-		// 				const indexOfX = line.indexOf("- [ ]")
-					
-		// 				if(indexOfX > -1){
-		// 					line = line.replace("- [ ] ", "- [x] ")
-		// 				}
-						
-		// 			}else {
-		// 				const indexOfX = line.indexOf("- [x] ")
-		// 				if(indexOfX > -1){
-		// 					line = line.replace("- [x] ", "- [ ] ")
-		// 				}
-		// 			}
-		// 		}catch(err){
-
-		// 		}
+		this.app.workspace.on("file-open", async (file:TFile) => {
+			if ( !file || file.extension !== "md") return;
+			let content = await this.app.vault.adapter.read(normalize(file.path));
+			if(!content.match("%%")) {
+				return;
+			}
 		
-		// 		content = content.replace(match[0], line);
-		// 	}
-		// 	await this.app.vault.adapter.write(normalize(file.path), content);
-		// })
+			const matches = [...content.matchAll(/\- \[[ xX]\] .* %%[A-Za-z0-9]{22}%%/g)]
+			let updated = false;
+			for(let match of matches) {
+				let line = match[0];
+				const id = match[0].match(/%%[A-Za-z0-9]{22}%%/)[0].substring(2).slice(0,-2);
+				try{
+					console.log(match)
+					const task = await getOneTaskById(this,id);
+					if(task.status === "completed") {
+						
+						const indexOfX = line.indexOf("- [ ]")
+					
+						if(indexOfX > -1){
+							line = line.replace("- [ ] ", "- [x] ")
+						}
+						
+					}else {
+						const indexOfX = line.indexOf("- [x] ")
+						if(indexOfX > -1){
+							line = line.replace("- [x] ", "- [ ] ")
+						}
+					}
+				}catch(err){
+					console.log(err);
+					return;
+				}
+				
+				content = content.replace(match[0], line);
+				updated = true;
+			}
+			if(updated) {
+				await this.app.vault.adapter.write(normalize(file.path), content);
+			}
+		})
 	}
 
 	async onload() {
