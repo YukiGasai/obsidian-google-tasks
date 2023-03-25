@@ -2,6 +2,10 @@
 
 Manage your Google Tasks from inside Obsidian
 
+
+# Please make sure to install the latest version of this plugin (at least 1.5.0) to prevent a potential corruption of your attachments (Sorry 🙇‍♂️) Thank you to @carlosrusso. 
+
+
 ## Features
 
 -   List tasks
