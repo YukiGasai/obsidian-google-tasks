@@ -1,6 +1,6 @@
 import { getRT } from './helper/LocalStorage';
 import { Editor, MarkdownView, Plugin, WorkspaceLeaf, moment, Notice, TFile } from "obsidian";
-import { GoogleTasksSettings } from "./helper/types";
+import type { GoogleTasksSettings } from "./helper/types";
 import { getAllUncompletedTasksOrderdByDue, getOneTaskById } from "./googleApi/ListAllTasks";
 import {
 	GoogleCompleteTaskById,
@@ -15,6 +15,7 @@ import {
 } from "./view/GoogleTasksSettingTab";
 import { normalize } from 'path';
 import { taskToList } from './helper/TaskToList';
+import { SelectInsertTaskModal } from './modal/SelectInsertTaskModal';
 
 const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleRefreshToken: "",
@@ -203,6 +204,30 @@ export default class GoogleTasks extends Plugin {
 
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
+			id: "insert-uncompleted-google-tasks",
+			name: "Insert Uncompleted Google Tasks",
+			editorCheckCallback: (
+				checking: boolean,
+				editor: Editor,
+				view: MarkdownView
+			): boolean => {
+				const canRun = settingsAreCompleteAndLoggedIn(this, false);
+
+				if (checking) {
+					return canRun;
+				}
+
+				if (!canRun) {
+					return;
+				}
+
+				writeTodoIntoFile(editor);
+			},
+		});
+
+
+		// This adds an editor command that can perform some operation on the current editor instance
+		this.addCommand({
 			id: "insert-google-tasks",
 			name: "Insert Google Tasks",
 			editorCheckCallback: (
@@ -220,7 +245,7 @@ export default class GoogleTasks extends Plugin {
 					return;
 				}
 
-				writeTodoIntoFile(editor);
+				new SelectInsertTaskModal(this, editor).open();
 			},
 		});
 

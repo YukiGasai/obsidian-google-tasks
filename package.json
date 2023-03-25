@@ -1,6 +1,6 @@
 {
 	"name": "google-tasks",
-	"version": "1.4.8",
+	"version": "1.5.0",
 	"description": "This is a plugin for Obsidian to interact with your google tasks",
 	"main": "main.js",
 	"scripts": {
@@ -12,12 +12,20 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
+		"@rollup/plugin-commonjs": "^24.0.1",
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"@rollup/plugin-typescript": "^11.0.0",
+		"@tsconfig/svelte": "^3.0.0",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "^5.2.0",
 		"@typescript-eslint/parser": "^5.2.0",
 		"builtin-modules": "^3.2.0",
 		"esbuild": "0.13.12",
+		"esbuild-svelte": "^0.7.3",
 		"obsidian": "latest",
+		"svelte": "^3.57.0",
+		"svelte-check": "^3.1.4",
+		"svelte-preprocess": "^5.0.3",
 		"tslib": "2.3.1",
 		"typescript": "4.4.4"
 	},

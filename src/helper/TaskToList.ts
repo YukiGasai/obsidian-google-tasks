@@ -1,4 +1,4 @@
-import { Task } from 'src/helper/types';
+import type { Task } from 'src/helper/types';
 
 export const taskToList = (task: Task): string => {
     let date = "-----------";

@@ -2,8 +2,8 @@
 
 import TreeMap from "ts-treemap";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "../GoogleTasksPlugin";
-import {
+import type GoogleTasks from "../GoogleTasksPlugin";
+import type {
 	Task,
 	TaskList,
 	TaskListResponse,
@@ -82,7 +82,9 @@ export async function getAllTaskLists(
  */
 export async function getAllTasksFromList(
 	plugin: GoogleTasks,
-	taskListId: string
+	taskListId: string,
+	startDate:moment.Moment = null,
+	endDate:moment.Moment = null
 ): Promise<Task[]> {
 
 	try {
@@ -94,6 +96,15 @@ export async function getAllTasksFromList(
 			url += "maxResults=100";
 			url += "&showCompleted=true";
 			url += "&showDeleted=false";
+
+			if (startDate && startDate.isValid()) {
+				url += `&dueMin=${startDate.local().startOf('day').toISOString()}`;
+			}
+
+			if (endDate && endDate.isValid() && endDate.endOf('day').isAfter(startDate, "hour")) {
+				url += `&dueMax=${endDate.add(1,"day").local().endOf('day').toISOString()}`;
+			}
+
 			if (plugin.showHidden) {
 				url += "&showHidden=true";
 			}
@@ -146,7 +157,7 @@ export async function getAllTasksFromList(
 /**
  * Get all tasklists from account
  */
-export async function getAllTasks(plugin: GoogleTasks): Promise<Task[]> {
+export async function getAllTasks(plugin: GoogleTasks, startDate:moment.Moment = null, endDate: moment.Moment = null): Promise<Task[]> {
 	let resultTasks: Task[] = [];
 
 	const taskLists = await getAllTaskLists(plugin);
@@ -154,7 +165,9 @@ export async function getAllTasks(plugin: GoogleTasks): Promise<Task[]> {
 	for (let i = 0; i < taskLists.length; i++) {
 		const tasks: Task[] = await getAllTasksFromList(
 			plugin,
-			taskLists[i].id
+			taskLists[i].id,
+			startDate,
+			endDate
 		);
 
 		tasks.forEach((task) => {

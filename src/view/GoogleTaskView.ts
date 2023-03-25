@@ -15,14 +15,14 @@ import {
 } from "../googleApi/GoogleCompleteTask";
 
 import { DeleteGoogleTask } from "../googleApi/GoogleDeleteTask";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { settingsAreCompleteAndLoggedIn } from "./GoogleTasksSettingTab";
 import {
 	getAllCompletedTasksGroupedByDue,
 	getAllTaskLists,
 	getAllUncompletedTasksGroupedByDue,
 } from "../googleApi/ListAllTasks";
-import { Task, TaskList } from "../helper/types";
+import type { Task, TaskList } from "../helper/types";
 import { UpdateTaskModal } from "../modal/UpdateTaskModal";
 
 export const VIEW_TYPE_GOOGLE_TASK = "googleTaskView";
@@ -90,7 +90,7 @@ export class GoogleTaskView extends ItemView {
 				}
 			}
 
-			if (moment(dueDate).isValid()) {
+			if (window.moment(dueDate).isValid()) {
 				dateString = moment.utc(dueDate).local().calendar(null, {
 					lastDay: "[Yesterday]",
 					sameDay: "[Today]",
@@ -224,7 +224,7 @@ createTaskElement(task:Task, containerEl: HTMLElement, isUnDoneList: boolean, is
 	});
 
 	if (due != "No due date" && isUnDoneList) {
-		if (moment.utc(due).local().isBefore(moment(), "date")) {
+		if (moment.utc(due).local().isBefore(window.moment(), "date")) {
 			taskTextContainer.style.color = "red";
 		}
 	}
