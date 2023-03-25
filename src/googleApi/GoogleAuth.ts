@@ -30,8 +30,7 @@ export async function getGoogleAuthToken(plugin: GoogleTasks): Promise<string> {
 				grant_type: "refresh_token",
 				refresh_token: getRT(),
 			};
-			const response = await fetch(
-				"https://oauth2.googleapis.com/token",
+			const response = await fetch("https://oauth2.googleapis.com/token",
 				{
 					method: "POST",
 					body: JSON.stringify(refreshBody),

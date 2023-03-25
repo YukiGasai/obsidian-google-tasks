@@ -27,8 +27,7 @@ export async function GoogleCompleteTask(
 	delete task.taskListName;
 
 	try {
-		const response = await fetch(
-			`${task.selfLink}?key=${plugin.settings.googleApiToken}`,
+		const response = await fetch(task.selfLink,
 			{
 				method: "PUT",
 				headers: requestHeaders,
@@ -72,8 +71,7 @@ export async function GoogleUnCompleteTask(
 	delete task.taskListName;
 
 	try {
-		const response = await fetch(
-			`${task.selfLink}?key=${plugin.settings.googleApiToken}`,
+		const response = await fetch(task.selfLink,
 			{
 				method: "PUT",
 				headers: requestHeaders,

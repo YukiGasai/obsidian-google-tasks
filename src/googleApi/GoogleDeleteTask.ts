@@ -15,8 +15,7 @@ export async function DeleteGoogleTask(
 	requestHeaders.append("Content-Type", "application/json");
 
 	try {
-		const response = await fetch(
-			`${selfLink}?key=${plugin.settings.googleApiToken}`,
+		const response = await fetch(selfLink,
 			{
 				method: "DELETE",
 				headers: requestHeaders,

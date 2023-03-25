@@ -29,19 +29,6 @@ export class GoogleTasksSettingTab extends PluginSettingTab {
 		containerEl.createEl("h2", { text: "Settings for Google Tasks" });
 
 		new Setting(containerEl)
-			.setName("ApiToken")
-			.setDesc("Google Api Token")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your api token")
-					.setValue(this.plugin.settings.googleApiToken)
-					.onChange(async (value) => {
-						this.plugin.settings.googleApiToken = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
 			.setName("ClientId")
 			.setDesc("Google client id")
 			.addText((text) =>
@@ -192,7 +179,6 @@ export function settingsAreComplete(
 	showNotice = true
 ): boolean {
 	if (
-		plugin.settings.googleApiToken == "" ||
 		plugin.settings.googleClientId == "" ||
 		plugin.settings.googleClientSecret == ""
 	) {
@@ -204,11 +190,6 @@ export function settingsAreComplete(
 
 export function settingsAreCorret(plugin: GoogleTasks): boolean {
 	if (
-		/^AIza[0-9A-Za-z-_]{35}$/.test(plugin.settings.googleApiToken) == false
-	) {
-		new Notice("API Token is not the correct format");
-		return false;
-	} else if (
 		/^[0-9a-zA-z-]*\.apps\.googleusercontent\.com$/.test(
 			plugin.settings.googleClientId
 		) == false

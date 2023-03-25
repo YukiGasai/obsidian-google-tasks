@@ -26,7 +26,7 @@ export async function CreateGoogleTask(
 	}
 	try {
 		const response = await fetch(
-			`https://tasks.googleapis.com/tasks/v1/lists/${taskInput.taskListId}/tasks?key=${plugin.settings.googleApiToken}`,
+			`https://tasks.googleapis.com/tasks/v1/lists/${taskInput.taskListId}/tasks`,
 			{
 				method: "POST",
 				headers: requestHeaders,
@@ -77,7 +77,7 @@ export async function CreateGoogleTaskFromOldTask(
 
 	try {
 		const response = await fetch(
-			`https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?key=${plugin.settings.googleApiToken}`,
+			`https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks`,
 			{
 				method: "POST",
 				headers: requestHeaders,

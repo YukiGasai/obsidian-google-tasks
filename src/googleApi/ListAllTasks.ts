@@ -26,7 +26,7 @@ export async function getOneTaskById(
 	for (let i = 0; i < taskLists.length; i++) {
 		try {
 			const response = await fetch(
-				`https://tasks.googleapis.com/tasks/v1/lists/${taskLists[i].id}/tasks/${taskId}?key=${plugin.settings.googleApiToken}`,
+				`https://tasks.googleapis.com/tasks/v1/lists/${taskLists[i].id}/tasks/${taskId}`,
 				{
 					method: "GET",
 					headers: requestHeaders,
@@ -60,7 +60,7 @@ export async function getAllTaskLists(
 
 	try {
 		const response = await fetch(
-			`https://tasks.googleapis.com/tasks/v1/users/@me/lists?key=${plugin.settings.googleApiToken}`,
+			`https://tasks.googleapis.com/tasks/v1/users/@me/lists`,
 			{
 				method: "GET",
 				headers: requestHeaders,
@@ -97,7 +97,6 @@ export async function getAllTasksFromList(
 			if (plugin.showHidden) {
 				url += "&showHidden=true";
 			}
-			url += `&key=${plugin.settings.googleApiToken}`;
 
 			if (allTasksData != undefined) {
 				url += `&pageToken=${allTasksData.nextPageToken}`;

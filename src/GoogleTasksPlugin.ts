@@ -20,7 +20,6 @@ const DEFAULT_SETTINGS: GoogleTasksSettings = {
 	googleRefreshToken: "",
 	googleClientId: "",
 	googleClientSecret: "",
-	googleApiToken: "",
 	askConfirmation: true,
 	refreshInterval: 60,
 	showNotice: true,

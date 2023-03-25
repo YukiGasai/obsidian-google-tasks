@@ -21,7 +21,7 @@ export async function UpdateGoogleTask(
 
 	try {
 		const response = await fetch(
-			`${task.selfLink}?key=${plugin.settings.googleApiToken}`,
+			`${task.selfLink}`,
 			{
 				method: "PATCH",
 				headers: requestHeaders,

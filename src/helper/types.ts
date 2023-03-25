@@ -2,7 +2,6 @@ export interface GoogleTasksSettings {
 	googleRefreshToken: string;
 	googleClientId: string;
 	googleClientSecret: string;
-	googleApiToken: string;
 	askConfirmation: boolean;
 	refreshInterval: number;
 	showNotice: boolean;
