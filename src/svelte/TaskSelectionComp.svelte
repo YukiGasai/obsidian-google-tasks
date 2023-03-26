@@ -4,6 +4,7 @@
 	import { onMount } from "svelte";
 	import { getAllTasks } from "../googleApi/ListAllTasks";
 	import type { SelectInsertTaskModal } from "../modal/SelectInsertTaskModal";
+	import { moment } from "obsidian";
 
 
 
@@ -11,8 +12,8 @@
     export let onSubmit: (tasks, SelectInsertTaskModal) => void;
     export let selectInsertTaskModal: SelectInsertTaskModal;
 
-    let startDate: moment.Moment = null;
-    let endDate: moment.Moment = null;
+    let startDate = null;
+    let endDate = null;
 
     let allowCompletedTasks: string = "notCompleted";
     let tasks: [Task, boolean][] = [];

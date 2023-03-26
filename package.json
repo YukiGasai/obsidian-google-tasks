@@ -22,11 +22,11 @@
 		"builtin-modules": "^3.2.0",
 		"esbuild": "0.13.12",
 		"esbuild-svelte": "^0.7.3",
-		"obsidian": "latest",
+		"obsidian": "^1.1.1",
 		"svelte": "^3.57.0",
 		"svelte-check": "^3.1.4",
 		"svelte-preprocess": "^5.0.3",
-		"tslib": "2.3.1",
+		"tslib": "^2.3.1",
 		"typescript": "4.4.4"
 	},
 	"dependencies": {
