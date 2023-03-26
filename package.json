@@ -5,7 +5,7 @@
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"build": "node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
@@ -15,7 +15,7 @@
 		"@rollup/plugin-commonjs": "^24.0.1",
 		"@rollup/plugin-node-resolve": "^15.0.1",
 		"@rollup/plugin-typescript": "^11.0.0",
-		"@tsconfig/svelte": "^3.0.0",
+		"@tsconfig/svelte": "^1.0.13",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "^5.2.0",
 		"@typescript-eslint/parser": "^5.2.0",
