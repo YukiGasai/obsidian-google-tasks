@@ -1,7 +1,7 @@
+import type GoogleTasksPlugin from "../GoogleTasksPlugin";
+import type { Task } from "../helper/types";
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasksPlugin from "../GoogleTasksPlugin";
 import { getOneTaskById } from "./ListAllTasks";
-import { Task } from "../helper/types";
 import { createNotice } from "src/helper/NoticeHelper";
 
 //=======================================

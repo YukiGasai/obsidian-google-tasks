@@ -1,5 +1,5 @@
 import { Notice } from "obsidian";
-import GoogleTasks from "src/GoogleTasksPlugin";
+import type GoogleTasks from "src/GoogleTasksPlugin";
 
 export function createNotice(
 	plugin: GoogleTasks,

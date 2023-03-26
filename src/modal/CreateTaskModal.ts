@@ -1,9 +1,9 @@
 import { DropdownComponent, Editor, Modal, Setting } from "obsidian";
 import { customSetting } from "../helper/CustomSettingElement";
 import { CreateGoogleTask } from "../googleApi/GoogleCreateTask";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { getAllTaskLists } from "../googleApi/ListAllTasks";
-import { Task, TaskInput } from "../helper/types";
+import type { Task, TaskInput } from "../helper/types";
 import { taskToList } from "src/helper/TaskToList";
 
 export class CreateTaskModal extends Modal {

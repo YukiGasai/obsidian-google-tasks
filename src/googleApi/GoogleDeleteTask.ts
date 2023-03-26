@@ -1,5 +1,5 @@
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { createNotice } from "src/helper/NoticeHelper";
 
 export async function DeleteGoogleTask(

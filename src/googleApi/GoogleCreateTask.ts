@@ -1,7 +1,7 @@
 import { getGoogleAuthToken } from "./GoogleAuth";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
-import { Task, TaskInput } from "../helper/types";
+import type { Task, TaskInput } from "../helper/types";
 import { createNotice } from "src/helper/NoticeHelper";
 
 export async function CreateGoogleTask(

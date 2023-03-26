@@ -1,5 +1,5 @@
 import { ButtonComponent, Modal } from "obsidian";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 
 export class ConfirmationModal extends Modal {
 	plugin: GoogleTasks;

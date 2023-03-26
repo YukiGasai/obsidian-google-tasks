@@ -9,7 +9,7 @@ import {
 } from "obsidian";
 import { customSetting } from "../helper/CustomSettingElement";
 import { LoginGoogle } from "../googleApi/GoogleAuth";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "./GoogleTaskView";
 import { getRT, setAT, setET, setRT } from "../helper/LocalStorage";
 

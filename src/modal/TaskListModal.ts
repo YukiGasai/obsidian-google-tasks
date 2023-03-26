@@ -1,8 +1,8 @@
 import { FuzzySuggestModal, moment } from "obsidian";
 import { GoogleCompleteTask } from "../googleApi/GoogleCompleteTask";
-import GoogleTasks from "../GoogleTasksPlugin";
+import type GoogleTasks from "../GoogleTasksPlugin";
 import { GoogleTaskView, VIEW_TYPE_GOOGLE_TASK } from "../view/GoogleTaskView";
-import { Task } from "../helper/types";
+import type { Task } from "../helper/types";
 
 export class TaskListModal extends FuzzySuggestModal<Task> {
 	plugin: GoogleTasks;
