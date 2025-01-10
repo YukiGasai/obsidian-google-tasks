@@ -95,6 +95,7 @@ export async function getAllTasksFromList(
 			let url = `https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks?`;
 			url += "maxResults=100";
 			url += "&showCompleted=true";
+			url += "&showAssigned=true";
 			url += "&showDeleted=false";
 
 			if (startDate && startDate.isValid()) {
